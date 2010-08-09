@@ -18,7 +18,9 @@ extern "C" {
 #include <math.h>
 #include <string.h>
 #include <stdlib.h>
-    
+#include "time.h"
+#include "constants.h"
+
 #ifdef	__cplusplus
 }
 #endif

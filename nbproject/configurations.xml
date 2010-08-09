@@ -4,11 +4,13 @@
     <logicalFolder name="HeaderFiles"
                    displayName="Header Files"
                    projectFiles="true">
+      <itemPath>constants.h</itemPath>
       <itemPath>helpers.h</itemPath>
     </logicalFolder>
     <logicalFolder name="ResourceFiles"
                    displayName="Resource Files"
                    projectFiles="true">
+      <itemPath>config.yml</itemPath>
       <itemPath>tests_for_recognize.jpg</itemPath>
       <itemPath>tests_for_recognize_2_rotated.jpg</itemPath>
       <itemPath>tests_for_recognize_2_rotated2.jpg</itemPath>
@@ -30,6 +32,7 @@
     <logicalFolder name="SourceFiles"
                    displayName="Source Files"
                    projectFiles="true">
+      <itemPath>constants.c</itemPath>
       <itemPath>helpers.c</itemPath>
       <itemPath>main.c</itemPath>
       <itemPath>not_used_code.c</itemPath>

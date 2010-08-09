@@ -1,7 +1,11 @@
 #include "helpers.h"
 
-const int TEXT_ANSWER = -2;
-const int NO_ANSWER = -1;
+/*
+const int THRESHOLD_LEVEL_TO_ALLOCATE_CHECKED_CHECKBOX = 100;//162;
+//const int THRESHOLD_LEVEL_TO_ALLOCATE_ALL_CHECKBOXES = 300;//231;
+const int MIN_CHECKBOX_AREA = 100;
+const int SIMILAR_CHECKBOXES_DISTANCE = 10;
+*/
 
 // the function draws all the squares in the image
 void drawSquares( IplImage** tmpImg, CvSeq* squares, char* wndname)
@@ -19,7 +23,6 @@ void drawSquares( IplImage** tmpImg, CvSeq* squares, char* wndname)
     for( i = 0; i < squares->total; i += 4 )
     {
         CvPoint pt[4], *rect = pt;
-        int count = 4;
 
         // read 4 vertices
         CV_READ_SEQ_ELEM( pt[0], reader );
@@ -40,8 +43,8 @@ void drawSquares( IplImage** tmpImg, CvSeq* squares, char* wndname)
     // show the resultant image
 /*
 window!
-*/
     cvShowImage( wndname, cpy );
+*/
     cvReleaseImage( &cpy );
 }
 
@@ -691,10 +694,6 @@ void getQuestionResults(IplImage* image, CvMemStorage* storage, int thresh, char
     //int result[2] = {-1, -1};
     //resultOut = malloc(2 * sizeof(int));
 
-    const int THRESHOLD_LEVEL_TO_ALLOCATE_CHECKED_CHECKBOX = 100;//162;
-    const int THRESHOLD_LEVEL_TO_ALLOCATE_ALL_CHECKBOXES = 300;//231;
-    const int MIN_RECTANGLE_AREA = 100;
-
     IplImage* backup = copyImage(image);
     image = avoidThreshold(backup, THRESHOLD_LEVEL_TO_ALLOCATE_CHECKED_CHECKBOX);
 
@@ -708,8 +707,8 @@ window!
 
     CvSeq* checkedFigure = getCheckedSign(image, storage);
 
-    CvSeq* checkboxes = findSquares4(backup, storage, 0, MIN_RECTANGLE_AREA, thresh);
-    checkboxes = filterSimilarSquares( checkboxes, 8, storage );
+    CvSeq* checkboxes = findSquares4(backup, storage, 0, MIN_CHECKBOX_AREA, thresh);
+    checkboxes = filterSimilarSquares( checkboxes, SIMILAR_CHECKBOXES_DISTANCE, storage );
     checkboxes = filterImageBorderSquare( checkboxes, storage );
 
 /*
@@ -767,8 +766,9 @@ window!
 //
 void recognize( IplImage* tmpImg, CvSeq* squares, CvMemStorage* storage, int thresh, char* wndname, int** results, int* totalQuestions )
 {
+    //loadConfig();
     int mainBorderWidth = tmpImg->width;
-    const double BASE_WIDTH_RATIO_QUESTION_TO_PLACEHOLDER = 462. / 415.;
+    const double BASE_WIDTH_RATIO_QUESTION_TO_PLACEHOLDER = 760. / 720.;    //462. / 415.;
     const double ADMISSION_RATIO = 0.02;
     IplImage* subimage, * subimage2;
 
@@ -790,7 +790,7 @@ void recognize( IplImage* tmpImg, CvSeq* squares, CvMemStorage* storage, int thr
         if ( questionWidthRatio > (BASE_WIDTH_RATIO_QUESTION_TO_PLACEHOLDER - ADMISSION_RATIO) &&
              questionWidthRatio < (BASE_WIDTH_RATIO_QUESTION_TO_PLACEHOLDER + ADMISSION_RATIO)) // origin 455 - 40 (px) = 415 (px)
         {
-            subimage = getSubimage(tmpImg, cvRect( points[0]->x + 0.93 * width, points[0]->y, 0.07 * width, points[2]->y - points[1]->y ));
+            subimage = getSubimage(tmpImg, cvRect( points[0]->x + 0.88 * width, points[0]->y, 0.12 * width, points[2]->y - points[1]->y ));
 /*
 window!
             cvNamedWindow( "Checkboxes", 1 );
@@ -878,7 +878,7 @@ void humanOutputResults(char* filename, int** results, int totalQuestions)
         printf("\tQuestion %d: ", totalQuestions - i);
         if (isTextAnswer(*results + 2 * i))
         {
-            printf("text answer expected //TODO:");
+            printf("text answer expected");
         }
         else
         {
@@ -934,3 +934,26 @@ void outputResults(const char* filename, int** results, int totalQuestions, cons
             humanOutputResults(filename, results, totalQuestions);
     }
 }
+
+/* 
+ * Profiler
+ */
+
+time_t  profilerStartAt = -1,
+        profilerStopAt = -1;
+
+void startTimeProfiling()
+{
+    profilerStartAt = clock();  //time(NULL);
+}
+
+void stopTimeProfiling()
+{
+    profilerStopAt = clock();   //time(NULL);
+}
+
+void outputProfileInfo()
+{
+   printf("Recognition completed in %.3f seconds \n", (float)(profilerStopAt - profilerStartAt) / CLOCKS_PER_SEC);
+}
+

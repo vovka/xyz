@@ -7,7 +7,7 @@ build/Debug/GNU-Linux-x86/helpers.o: helpers.c helpers.h \
  /usr/local/include/opencv/cxmat.hpp /usr/local/include/opencv/cxflann.h \
  /usr/local/include/opencv/cvtypes.h /usr/local/include/opencv/cvcompat.h \
  /usr/local/include/opencv/highgui.h \
- /usr/local/include/opencv/highgui.hpp
+ /usr/local/include/opencv/highgui.hpp constants.h
 
 helpers.h:
 
@@ -38,3 +38,5 @@ helpers.h:
 /usr/local/include/opencv/highgui.h:
 
 /usr/local/include/opencv/highgui.hpp:
+
+constants.h:

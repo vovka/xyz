@@ -32,6 +32,7 @@ OBJECTDIR=build/${CND_CONF}/${CND_PLATFORM}
 # Object Files
 OBJECTFILES= \
 	${OBJECTDIR}/helpers.o \
+	${OBJECTDIR}/constants.o \
 	${OBJECTDIR}/not_used_code.o \
 	${OBJECTDIR}/main.o
 
@@ -63,6 +64,11 @@ ${OBJECTDIR}/helpers.o: nbproject/Makefile-${CND_CONF}.mk helpers.c
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
 	$(COMPILE.c) -g -MMD -MP -MF $@.d -o ${OBJECTDIR}/helpers.o helpers.c
+
+${OBJECTDIR}/constants.o: nbproject/Makefile-${CND_CONF}.mk constants.c 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} $@.d
+	$(COMPILE.c) -g -MMD -MP -MF $@.d -o ${OBJECTDIR}/constants.o constants.c
 
 ${OBJECTDIR}/not_used_code.o: nbproject/Makefile-${CND_CONF}.mk not_used_code.c 
 	${MKDIR} -p ${OBJECTDIR}
