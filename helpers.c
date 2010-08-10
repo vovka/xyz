@@ -43,8 +43,8 @@ void drawSquares( IplImage** tmpImg, CvSeq* squares, char* wndname)
     // show the resultant image
 /*
 window!
-    cvShowImage( wndname, cpy );
 */
+    cvShowImage( wndname, cpy );
     cvReleaseImage( &cpy );
 }
 
@@ -689,33 +689,51 @@ int getTotalConsideringSimilarityOfSequences(CvSeq* checkboxes, CvSeq* checkedFi
     return similar ? result : (result + 1);
 }
 
-void getQuestionResults(IplImage* image, CvMemStorage* storage, int thresh, char* wndname, int* resultOut)
+void getQuestionResults(    IplImage* image,
+                            CvMemStorage* storage,
+                            int thresh,
+                            int thresholdLevelToAllocateCheckedCheckboxes,
+                            int debug,
+                            char* wndname,
+                            int* resultOut)
 {
     //int result[2] = {-1, -1};
     //resultOut = malloc(2 * sizeof(int));
 
     IplImage* backup = copyImage(image);
-    image = avoidThreshold(backup, THRESHOLD_LEVEL_TO_ALLOCATE_CHECKED_CHECKBOX);
+    //image = avoidThreshold(backup, THRESHOLD_LEVEL_TO_ALLOCATE_CHECKED_CHECKBOX);
+    image = avoidThreshold(backup, thresholdLevelToAllocateCheckedCheckboxes);
 
 /*
 window!
-    cvNamedWindow("test", 1);
-    cvShowImage("test", image);
-    cvWaitKey(0);
-    cvDestroyWindow("test");
 */
+    if (debug)
+    {
+        cvNamedWindow("test", 1);
+        cvShowImage("test", image);
+        cvWaitKey(0);
+        cvDestroyWindow("test");
+    }
 
     CvSeq* checkedFigure = getCheckedSign(image, storage);
 
     CvSeq* checkboxes = findSquares4(backup, storage, 0, MIN_CHECKBOX_AREA, thresh);
+    if (debug)
+    {
+        drawSquares(&backup, checkboxes, wndname);
+        cvWaitKey(0);
+    }
     checkboxes = filterSimilarSquares( checkboxes, SIMILAR_CHECKBOXES_DISTANCE, storage );
     checkboxes = filterImageBorderSquare( checkboxes, storage );
 
 /*
 window!
-    drawSquares(&backup, checkboxes, wndname);
-    cvWaitKey(0);
 */
+    if(debug)
+    {
+        drawSquares(&backup, checkboxes, wndname);
+        cvWaitKey(0);
+    }
 
     if (checkboxes && checkboxes->total > 0)
     {
@@ -723,9 +741,12 @@ window!
         IplImage* testImg = cvCreateImage(cvSize(image->width, image->height), image->depth, image->nChannels);
 /*
 window!
-        drawSquares(&testImg, checkboxes, wndname);
-        cvWaitKey(0);
 */
+        if (debug)
+        {
+            drawSquares(&testImg, checkboxes, wndname);
+            cvWaitKey(0);
+        }
 
         //printf("\n");
         if (checkedFigure && checkedFigure->total > 0)
@@ -764,11 +785,19 @@ window!
 //      ...
 //  ]
 //
-void recognize( IplImage* tmpImg, CvSeq* squares, CvMemStorage* storage, int thresh, char* wndname, int** results, int* totalQuestions )
+void recognize( IplImage* tmpImg,
+                CvSeq* squares,
+                CvMemStorage* storage,
+                int thresh,
+                int threshChecked,
+                int debug, 
+                char* wndname,
+                int** results,
+                int* totalQuestions )
 {
     //loadConfig();
     int mainBorderWidth = tmpImg->width;
-    const double BASE_WIDTH_RATIO_QUESTION_TO_PLACEHOLDER = 760. / 720.;    //462. / 415.;
+    const double BASE_WIDTH_RATIO_QUESTION_TO_PLACEHOLDER = 1014. / 909.;
     const double ADMISSION_RATIO = 0.02;
     IplImage* subimage, * subimage2;
 
@@ -790,19 +819,25 @@ void recognize( IplImage* tmpImg, CvSeq* squares, CvMemStorage* storage, int thr
         if ( questionWidthRatio > (BASE_WIDTH_RATIO_QUESTION_TO_PLACEHOLDER - ADMISSION_RATIO) &&
              questionWidthRatio < (BASE_WIDTH_RATIO_QUESTION_TO_PLACEHOLDER + ADMISSION_RATIO)) // origin 455 - 40 (px) = 415 (px)
         {
-            subimage = getSubimage(tmpImg, cvRect( points[0]->x + 0.88 * width, points[0]->y, 0.12 * width, points[2]->y - points[1]->y ));
+            subimage = getSubimage(tmpImg, cvRect( points[0]->x + 0.9 * width, points[0]->y, 0.1 * width, points[2]->y - points[1]->y ));
 /*
 window!
-            cvNamedWindow( "Checkboxes", 1 );
-            cvShowImage( "Checkboxes", subimage );
-            cvWaitKey(0);
 */
+            if (debug)
+            {
+                cvNamedWindow( "Checkboxes", 1 );
+                cvShowImage( "Checkboxes", subimage );
+                //cvWaitKey(0);
+            }
 
-            getQuestionResults(subimage, storage, thresh, wndname, *results + 2 * i / 4 );
+            getQuestionResults(subimage, storage, thresh, threshChecked, debug, wndname, *results + 2 * i / 4 );
 /*
 window!
-            cvDestroyWindow("Checkboxes");
 */
+            if (debug)
+            {
+                cvDestroyWindow("Checkboxes");
+            }
 
             cvCircle(tmpImg, *(points[0]), 10, CV_RGB(255, 0, 0), 1, 8, 0);
             cvCircle(tmpImg, *(points[1]), 10, CV_RGB(0, 255, 0), 1, 8, 0);

@@ -36,6 +36,7 @@
       <itemPath>helpers.c</itemPath>
       <itemPath>main.c</itemPath>
       <itemPath>not_used_code.c</itemPath>
+      <itemPath>params_parser.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"

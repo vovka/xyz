@@ -31,10 +31,11 @@ OBJECTDIR=build/${CND_CONF}/${CND_PLATFORM}
 
 # Object Files
 OBJECTFILES= \
+	${OBJECTDIR}/params_parser.o \
+	${OBJECTDIR}/main.o \
 	${OBJECTDIR}/helpers.o \
 	${OBJECTDIR}/constants.o \
-	${OBJECTDIR}/not_used_code.o \
-	${OBJECTDIR}/main.o
+	${OBJECTDIR}/not_used_code.o
 
 # C Compiler Flags
 CFLAGS=
@@ -60,6 +61,16 @@ dist/Release/GNU-Linux-x86/formreader: ${OBJECTFILES}
 	${MKDIR} -p dist/Release/GNU-Linux-x86
 	${LINK.c} -o ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/formreader ${OBJECTFILES} ${LDLIBSOPTIONS} 
 
+${OBJECTDIR}/params_parser.o: nbproject/Makefile-${CND_CONF}.mk params_parser.c 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} $@.d
+	$(COMPILE.c) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/params_parser.o params_parser.c
+
+${OBJECTDIR}/main.o: nbproject/Makefile-${CND_CONF}.mk main.c 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} $@.d
+	$(COMPILE.c) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/main.o main.c
+
 ${OBJECTDIR}/helpers.o: nbproject/Makefile-${CND_CONF}.mk helpers.c 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
@@ -74,11 +85,6 @@ ${OBJECTDIR}/not_used_code.o: nbproject/Makefile-${CND_CONF}.mk not_used_code.c
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
 	$(COMPILE.c) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/not_used_code.o not_used_code.c
-
-${OBJECTDIR}/main.o: nbproject/Makefile-${CND_CONF}.mk main.c 
-	${MKDIR} -p ${OBJECTDIR}
-	${RM} $@.d
-	$(COMPILE.c) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/main.o main.c
 
 # Subprojects
 .build-subprojects:
