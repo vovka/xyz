@@ -575,11 +575,13 @@ int getCheckedPosition(CvSeq* checkboxes, CvSeq* checkedFigure)
     int result = checkboxes->total / 4 + 1;
     CvPoint* somePointOfCheckedFigure = (CvPoint*)cvGetSeqElem(checkedFigure, 0);
 
+/*
         CvPoint* sign[checkedFigure->total];
         for(int i = 0; i < checkedFigure->total; i++)
         {
             sign[i] = (CvPoint*)cvGetSeqElem(checkedFigure, i);
         }
+*/
 
     CvPoint* pointsOfCheckboxes[checkboxes->total / 4];
     for (int i = 0; i < checkboxes->total; i += 4)
@@ -602,7 +604,7 @@ int getCheckedPosition(CvSeq* checkboxes, CvSeq* checkedFigure)
     //Similarity
     //HARDCODE: do it the right way
     int similar = -1;
-    const int MIN_VECTOR_LENGTH_FOR_SIMILARITY = 25;
+    //const int MIN_VECTOR_LENGTH_FOR_SIMILARITY = 40;
     for (int i = 0; i < checkboxes->total / 4; i++)
     {
         int x2 = pow(pointsOfCheckboxes[i]->x - somePointOfCheckedFigure->x, 2);
@@ -623,7 +625,7 @@ int getCheckedPosition(CvSeq* checkboxes, CvSeq* checkedFigure)
             CvPoint* somePointOfCheckbox = pointsOfCheckboxes[i];
             CvPoint* somePointOfNextCheckbox = pointsOfCheckboxes[i + 1];
 
-            if ( abs(somePointOfCheckbox->y - somePointOfCheckedFigure->y) < 10 )    //TODO: remove magic number!
+            if ( abs(somePointOfCheckbox->y - somePointOfCheckedFigure->y) < MIN_Y_LENGTH_FOR_SIMILARITY )
             {
                 result = i + 1;
                 break;
@@ -663,8 +665,10 @@ int getTotalConsideringSimilarityOfSequences(CvSeq* checkboxes, CvSeq* checkedFi
     CvPoint* checkboxesCenters = getRectanglesCenters(checkboxes);
     CvPoint checkedFigureCenter = getSeqCenter(checkedFigure);
 
-    //HARDCODE: creating fixed sized copy of array, because var sized array
-    // rewrites while next for-cycle interation
+    /*
+     * HARDCODE: creating fixed sized copy of array, because var sized array
+     * rewrites on next for-cycle interation
+     */
     CvPoint tmpArr[10];
     for (int i = 0; i < result; i++)
     {
@@ -673,7 +677,7 @@ int getTotalConsideringSimilarityOfSequences(CvSeq* checkboxes, CvSeq* checkedFi
 
     //HARDCODE: do it the right way
     int similar = 0;
-    const int MIN_VECTOR_LENGTH_FOR_SIMILARITY = 25;
+    //const int MIN_VECTOR_LENGTH_FOR_SIMILARITY = 25;
     for (int i = 0; i < result; i++)
     {
         int x2 = pow(tmpArr[i].x - checkedFigureCenter.x, 2);
@@ -697,11 +701,7 @@ void getQuestionResults(    IplImage* image,
                             char* wndname,
                             int* resultOut)
 {
-    //int result[2] = {-1, -1};
-    //resultOut = malloc(2 * sizeof(int));
-
     IplImage* backup = copyImage(image);
-    //image = avoidThreshold(backup, THRESHOLD_LEVEL_TO_ALLOCATE_CHECKED_CHECKBOX);
     image = avoidThreshold(backup, thresholdLevelToAllocateCheckedCheckboxes);
 
 /*
@@ -770,8 +770,6 @@ window!
         *(resultOut + 1) = TEXT_ANSWER; //text question
         //printf("text question\n");
     }
-
-    //return result;  // the first element is a checked checkbox, the second is total checkboxes
 }
 
 //
@@ -797,12 +795,10 @@ void recognize( IplImage* tmpImg,
 {
     //loadConfig();
     int mainBorderWidth = tmpImg->width;
-    const double BASE_WIDTH_RATIO_QUESTION_TO_PLACEHOLDER = 1014. / 909.;
     const double ADMISSION_RATIO = 0.02;
     IplImage* subimage, * subimage2;
 
-    *totalQuestions = squares->total / 4 - 1;
-    //int* results[squares->total];
+    *totalQuestions = squares->total / 4;
     *results = (int*)malloc(2 * squares->total / 4 * sizeof(int));
     for (int i = 0; i < squares->total; i += 4)
     {
@@ -812,14 +808,20 @@ void recognize( IplImage* tmpImg,
             points[j] = (CvPoint*)cvGetSeqElem(squares, i + j);
         }
         //normalizeRectanglePoints(points);
-        int width = points[1]->x - points[0]->x;
+        int questionBorderWidth = points[1]->x - points[0]->x;
 
         // If width like question's width
-        double questionWidthRatio = (double)mainBorderWidth / (double)width;
-        if ( questionWidthRatio > (BASE_WIDTH_RATIO_QUESTION_TO_PLACEHOLDER - ADMISSION_RATIO) &&
-             questionWidthRatio < (BASE_WIDTH_RATIO_QUESTION_TO_PLACEHOLDER + ADMISSION_RATIO)) // origin 455 - 40 (px) = 415 (px)
+        double questionWidthRatio = (double)mainBorderWidth / (double)questionBorderWidth;
+        if ( questionWidthRatio > (QUESTION_TO_OUTER_RECT_WIDTH_RATIO - ADMISSION_RATIO) &&
+             questionWidthRatio < (QUESTION_TO_OUTER_RECT_WIDTH_RATIO + ADMISSION_RATIO)) // origin 455 - 40 (px) = 415 (px)
         {
-            subimage = getSubimage(tmpImg, cvRect( points[0]->x + 0.9 * width, points[0]->y, 0.1 * width, points[2]->y - points[1]->y ));
+            subimage = getSubimage(
+                tmpImg,
+                cvRect(
+                    points[0]->x + (1 - CHECKBOXES_AREA_WIDTH_TO_QUESTION_WIDTH_RATIO) * questionBorderWidth,
+                    points[0]->y,
+                    CHECKBOXES_AREA_WIDTH_TO_QUESTION_WIDTH_RATIO * questionBorderWidth,
+                    points[2]->y - points[1]->y ));
 /*
 window!
 */
@@ -845,150 +847,5 @@ window!
             cvCircle(tmpImg, *(points[3]), 10, CV_RGB(0, 255, 255), 1, 8, 0);
         }
     }
-    //return results;
-}
-
-int isTextAnswer(int* vals)
-{
-    return TEXT_ANSWER == *(vals + 0);
-}
-
-int isNoAnswer(int* vals)
-{
-    return NO_ANSWER == *(vals + 1);
-}
-
-void jsonOutputResults(const char* filename, int** results, int totalQuestions)
-{
-    char* answers;
-    for (int i = totalQuestions - 1; i >= 0; i--)
-    {
-        if (isTextAnswer(*results + 2 * i))
-        {
-            answers = strcat(answers, "'text answer expected'");
-        }
-        else
-        {
-            if (isNoAnswer(*results + 2 * i))
-            {
-                answers = strcat(answers, "'no answer checked'");
-            }
-            else
-            {
-                answers = strcat(answers, " { ");
-                //strcat(answers, itoa(*(*results + 2 * i + 0)));
-                char b[2];
-                sprintf(b, "d%", *(*results + 2 * i + 0));
-                answers = strcat(answers, b);
-                
-                answers = strcat(answers, " , ");
-                //strcat(answers, itoa(*(*results + 2 * i + 1)));
-                sprintf(b, "d%", *(*results + 2 * i + 0));
-                answers = strcat(answers, b);
-
-                answers = strcat(answers, " } ");
-                //printf("replied %d of %d", *(*results + 2 * i + 0), *(*results + 2 * i + 1));
-            }
-        }
-        if (i != totalQuestions - 1)
-        {
-            strcat(answers, ", ");
-        }
-        //printf("\n");
-    }
-
-    char* resultAsJSON = " { '";
-    resultAsJSON = strcat(resultAsJSON, "++");//filename
-    resultAsJSON = strcat(resultAsJSON, "' : [");
-    resultAsJSON = strcat(resultAsJSON, answers);
-    resultAsJSON = strcat(resultAsJSON, "] } ");
-    printf(resultAsJSON);
-}
-
-void humanOutputResults(char* filename, int** results, int totalQuestions)
-{
-    printf("'%s' file results:\n", filename);
-    for (int i = totalQuestions - 1; i >= 0; i--)
-    {
-        printf("\tQuestion %d: ", totalQuestions - i);
-        if (isTextAnswer(*results + 2 * i))
-        {
-            printf("text answer expected");
-        }
-        else
-        {
-            if (isNoAnswer(*results + 2 * i))
-            {
-                printf("no answer checked");
-            }
-            else
-            {
-                printf("replied %d of %d", *(*results + 2 * i + 0), *(*results + 2 * i + 1));
-            }
-        }
-        printf("\n");
-    }
-    printf("\n");
-}
-
-void defaultOutputResults(char* filename, int** results, int totalQuestions)
-{
-    printf("%s:\n", filename);
-    for (int i = totalQuestions - 1; i >= 0; i--)
-    {
-        printf("%d / %d\n", *(*results + 2 * i + 0), *(*results + 2 * i + 1));
-    }
-    printf("\n");
-}
-
-const int DEFAULT = 0;
-const int JSON = 1;
-const int HUMAN = 2;
-
-int translateFormat(const char* format)
-{
-    if (0 == strcmp(format, "json"))
-        return JSON;
-    if (0 == strcmp(format, "human"))
-        return HUMAN;
-    return DEFAULT;
-}
-
-void outputResults(const char* filename, int** results, int totalQuestions, const char* format)
-{
-    int f = translateFormat(format);
-    switch (f)
-    {
-        case 1:
-            jsonOutputResults(filename, results, totalQuestions);
-            break;
-        case 0:
-            defaultOutputResults(filename, results, totalQuestions);
-            break;
-        default:    //HUMAN
-            humanOutputResults(filename, results, totalQuestions);
-    }
-}
-
-/* 
- * Profiler
- */
-
-time_t  profilerStartAt = -1,
-        profilerStopAt = -1;
-
-void startTimeProfiling()
-{
-    profilerStartAt = clock();  //time(NULL);
-}
-
-void stopTimeProfiling()
-{
-    profilerStopAt = clock();   //time(NULL);
-}
-
-void outputProfileInfo()
-{
-   printf("Recognition completed in %.3f seconds \n", (float)(profilerStopAt - profilerStartAt) / CLOCKS_PER_SEC);
 }
 

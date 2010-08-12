@@ -33,6 +33,7 @@ OBJECTDIR=build/${CND_CONF}/${CND_PLATFORM}
 OBJECTFILES= \
 	${OBJECTDIR}/params_parser.o \
 	${OBJECTDIR}/main.o \
+	${OBJECTDIR}/result_output.o \
 	${OBJECTDIR}/helpers.o \
 	${OBJECTDIR}/constants.o \
 	${OBJECTDIR}/not_used_code.o
@@ -70,6 +71,11 @@ ${OBJECTDIR}/main.o: nbproject/Makefile-${CND_CONF}.mk main.c
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
 	$(COMPILE.c) -g -MMD -MP -MF $@.d -o ${OBJECTDIR}/main.o main.c
+
+${OBJECTDIR}/result_output.o: nbproject/Makefile-${CND_CONF}.mk result_output.c 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} $@.d
+	$(COMPILE.c) -g -MMD -MP -MF $@.d -o ${OBJECTDIR}/result_output.o result_output.c
 
 ${OBJECTDIR}/helpers.o: nbproject/Makefile-${CND_CONF}.mk helpers.c 
 	${MKDIR} -p ${OBJECTDIR}
