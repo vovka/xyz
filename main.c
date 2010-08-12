@@ -65,112 +65,93 @@ int main(int argc, char** argv)
     // create memory storage that will contain all the dynamic data
     storage = cvCreateMemStorage(0);
 
-/*
-    for( i = 0; names[i] != 0; i++ )
+    img0 = cvLoadImage( filename, 1 );
+    if( !img0 )
     {
-*/
-        startTimeProfiling();
-        
-        // load i-th image
-        img0 = cvLoadImage( filename, 1 );
-        if( !img0 )
-        {
-            printf("Couldn't load %s\n", filename );
-/*
-            continue;
-*/
-            return 1;
-        }
-        img = cvCloneImage( img0 );
-
-        CvSeq* squares = findSquares4( img, storage, 0, minSquaresArea, thresh );
-        squares = filterImageBorderSquare( filterSimilarSquares(squares, SIMILAR_SQUARES_DISTANCE, storage), storage );
-/*
-window!
-*/
-        if (debug)
-        {
-            drawSquares( &img, squares, wndname);
-            c = cvWaitKey(0);
-        }
-
-        CvPoint** outerRectangle = getOuterRectangle( squares );
-
-        float ang = rotationAngle( outerRectangle );
-        rotateImage( &img, &ang );
-        squares = findSquares4( img, storage, 0, minSquaresArea, thresh ); // find squares again after rotation
-        squares =  filterSimilarSquares(squares, SIMILAR_SQUARES_DISTANCE, storage);
-        squares =  filterImageBorderSquare(squares, storage);
-/*
-window!
-*/
-        if (debug)
-        {
-            drawSquares( &img, squares, wndname);
-            c = cvWaitKey(0);
-        }
-        
-        outerRectangle = getOuterRectangle( squares );  // find outer rectangle again after rotation
-
-        img = cropImage( &img, &outerRectangle );
-/*
-window!
-*/
-        if (debug)
-        {
-            cvShowImage( wndname, img );
-            c = cvWaitKey(0);
-        }
-        
-        squares = findSquares4( img, storage, 0, minSquaresArea, thresh ); // find squares again after crop
-        squares = filterImageBorderSquare( filterSimilarSquares(squares, SIMILAR_SQUARES_DISTANCE, storage), storage );
-
-        int* results;
-        int totalQuestions;
-
-        recognize( img, squares, storage, thresh, thresholdLevelToAllocateCheckedCheckboxes, debug, wndname, &results, &totalQuestions );
-        outputResults(filename, &results, totalQuestions, outputResultsAs);
-
-/*
-window!
-*/
-        if (debug)
-        {
-            // find and draw the squares
-            drawSquares( &img, squares, wndname );
-            // wait for key.
-            // Also the function cvWaitKey takes care of event processing
-            c = cvWaitKey(0);
-        }
-        
-        stopTimeProfiling();
-        outputProfileInfo();
-
-/*
-window!
-*/
-        if (showDialog)
-        {
-            cvNamedWindow( wndname, 1 );
-            cvShowImage( wndname, img0 );
-            c = cvWaitKey(0);
-        }
-        
-        // release both images
-        cvReleaseImage( &img );
-        cvReleaseImage( &img0 );
-        // clear memory storage - reset free space position
-        cvClearMemStorage( storage );
-/*
-        if( (char)c == 27 )
-            break;
+        printf("Couldn't load %s\n", filename );
+        return 1;
     }
+    img = cvCloneImage( img0 );
+
+    CvSeq* squares = findSquares4( img, storage, 0, minSquaresArea, thresh );
+    squares = filterImageBorderSquare( filterSimilarSquares(squares, SIMILAR_SQUARES_DISTANCE, storage), storage );
+/*
+window!
 */
+    if (debug)
+    {
+        drawSquares( &img, squares, wndname);
+        c = cvWaitKey(0);
+    }
+
+    CvPoint** outerRectangle = getOuterRectangle( squares );
+
+    float ang = rotationAngle( outerRectangle );
+    rotateImage( &img, &ang );
+    squares = findSquares4( img, storage, 0, minSquaresArea, thresh ); // find squares again after rotation
+    squares =  filterSimilarSquares(squares, SIMILAR_SQUARES_DISTANCE, storage);
+    squares =  filterImageBorderSquare(squares, storage);
+/*
+window!
+*/
+    if (debug)
+    {
+        drawSquares( &img, squares, wndname);
+        c = cvWaitKey(0);
+    }
+
+    outerRectangle = getOuterRectangle( squares );  // find outer rectangle again after rotation
+
+    img = cropImage( &img, &outerRectangle );
+/*
+window!
+*/
+    if (debug)
+    {
+        cvShowImage( wndname, img );
+        c = cvWaitKey(0);
+    }
+
+    squares = findSquares4( img, storage, 0, minSquaresArea, thresh ); // find squares again after crop
+    squares = filterImageBorderSquare( filterSimilarSquares(squares, SIMILAR_SQUARES_DISTANCE, storage), storage );
+
+    int* results;
+    int totalQuestions;
+
+    recognize( img, squares, storage, thresh, thresholdLevelToAllocateCheckedCheckboxes, debug, wndname, &results, &totalQuestions );
+    outputResults(filename, &results, totalQuestions, outputResultsAs);
 
 /*
 window!
-    c = cvWaitKey(0);
 */
+    if (debug)
+    {
+        // find and draw the squares
+        drawSquares( &img, squares, wndname );
+        // wait for key.
+        // Also the function cvWaitKey takes care of event processing
+        c = cvWaitKey(0);
+    }
+
+    stopTimeProfiling();
+    outputProfileInfo();
+
+/*
+window!
+*/
+    if (showDialog)
+    {
+        cvNamedWindow( wndname, 1 );
+        cvShowImage( wndname, img0 );
+        c = cvWaitKey(0);
+    }
+
+    // release both images
+    cvReleaseImage( &img );
+    cvReleaseImage( &img0 );
+    // clear memory storage - reset free space position
+    cvClearMemStorage( storage );
+
     if (showDialog)
     {
         cvDestroyWindow( wndname );

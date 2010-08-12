@@ -8,10 +8,10 @@ const int SIMILAR_CHECKBOXES_DISTANCE = 10;
 */
 
 // the function draws all the squares in the image
-void drawSquares( IplImage** tmpImg, CvSeq* squares, char* wndname)
+void drawSquares( IplImage** iplimgCanvas, CvSeq* squares, char* chpWndname)
 {
     CvSeqReader reader;
-    IplImage* cpy = cvCloneImage( *tmpImg );
+    IplImage* cpy = cvCloneImage( *iplimgCanvas );
     int i;
 
     // initialize reader of the sequence
@@ -44,7 +44,7 @@ void drawSquares( IplImage** tmpImg, CvSeq* squares, char* wndname)
 /*
 window!
 */
-    cvShowImage( wndname, cpy );
+    cvShowImage( chpWndname, cpy );
     cvReleaseImage( &cpy );
 }
 
@@ -62,12 +62,12 @@ double angle( CvPoint* pt1, CvPoint* pt2, CvPoint* pt0 )
 
 // returns sequence of squares detected on the image.
 // the sequence is stored in the specified memory storage
-CvSeq* findSquares4( IplImage* tmpImg, CvMemStorage* tmpStorage, char* wndName, int minArea, int thresh )
+CvSeq* findSquares4( IplImage* iplimgSrc, CvMemStorage* tmpStorage, char* wndName, int minArea, int thresh )
 {
     CvSeq* contours;
     int i, c, l, N = 15;   //default was 11
-    CvSize sz = cvSize( tmpImg->width & -2, tmpImg->height & -2 );
-    IplImage* timg = cvCloneImage( tmpImg ); // make a copy of input image
+    CvSize sz = cvSize( iplimgSrc->width & -2, iplimgSrc->height & -2 );
+    IplImage* timg = cvCloneImage( iplimgSrc ); // make a copy of input image
     IplImage* gray = cvCreateImage( sz, 8, 1 );
     IplImage* pyr = cvCreateImage( cvSize(sz.width/2, sz.height/2), 8, 3 );
     IplImage* tgray;
@@ -158,15 +158,15 @@ CvSeq* findSquares4( IplImage* tmpImg, CvMemStorage* tmpStorage, char* wndName, 
                     // vertices to resultant sequence
                     if( s < 0.1 )
                     {
-                        CvPoint* points[4];
+                        CvPoint* arrcvpntpPoints[4];
                         for( i = 0; i < 4; i++ )
                         {
-                            points[i] = (CvPoint*)cvGetSeqElem( result, i );
+                            arrcvpntpPoints[i] = (CvPoint*)cvGetSeqElem( result, i );
                         }
-                        normalizeRectanglePoints(points);
+                        normalizeRectanglePoints(arrcvpntpPoints);
                         for( i = 0; i < 4; i++ )
                         {
-                            cvSeqPush( squares, points[i]);
+                            cvSeqPush( squares, arrcvpntpPoints[i]);
                         }
                     }
                 }
@@ -237,9 +237,9 @@ int isBorderSquare(CvPoint* square)
     return result;
 }
 
-CvSeq* filterSimilarSquares(CvSeq* squares, int similarityDistance, CvMemStorage* storage)
+CvSeq* filterSimilarSquares(CvSeq* squares, int similarityDistance, CvMemStorage* cvmemStorage)
 {
-    CvSeq* filteredSquares = cvCreateSeq( 0, sizeof(CvSeq), sizeof(CvPoint), storage );
+    CvSeq* filteredSquares = cvCreateSeq( 0, sizeof(CvSeq), sizeof(CvPoint), cvmemStorage );
     for (int i = 0; i < squares->total; i += 4)
     {
         if (!isExistsSimilarPoint(filteredSquares, squares, i, similarityDistance ))
@@ -253,9 +253,9 @@ CvSeq* filterSimilarSquares(CvSeq* squares, int similarityDistance, CvMemStorage
     return filteredSquares;
 }
 
-CvSeq* filterImageBorderSquare(CvSeq* squares, CvMemStorage* storage)
+CvSeq* filterImageBorderSquare(CvSeq* squares, CvMemStorage* cvmemStorage)
 {
-    CvSeq* filteredSquares = cvCreateSeq( 0, sizeof(CvSeq), sizeof(CvPoint), storage );
+    CvSeq* filteredSquares = cvCreateSeq( 0, sizeof(CvSeq), sizeof(CvPoint), cvmemStorage );
     for (int i = 0; i < squares->total; i += 4)
     {
         if (!isBorderSquare((CvPoint*)cvGetSeqElem( squares, i )))
@@ -301,16 +301,16 @@ float rotationAngle(  CvPoint** pointers )
 CvPoint** getOuterRectangle(CvSeq* squares)
 {
     CvSeq* rect = squares;
-    CvPoint* points[4];
-    points[0] = (CvPoint*)cvGetSeqElem(squares, 0);
-    points[1] = (CvPoint*)cvGetSeqElem(squares, 1);
-    points[2] = (CvPoint*)cvGetSeqElem(squares, 2);
-    points[3] = (CvPoint*)cvGetSeqElem(squares, 3);
+    CvPoint* arrcvpntpPoints[4];
+    arrcvpntpPoints[0] = (CvPoint*)cvGetSeqElem(squares, 0);
+    arrcvpntpPoints[1] = (CvPoint*)cvGetSeqElem(squares, 1);
+    arrcvpntpPoints[2] = (CvPoint*)cvGetSeqElem(squares, 2);
+    arrcvpntpPoints[3] = (CvPoint*)cvGetSeqElem(squares, 3);
 
-    double vectorLength = sqrt(points[0]->x * points[0]->x + points[0]->y * points[0]->y);
+    double vectorLength = sqrt(arrcvpntpPoints[0]->x * arrcvpntpPoints[0]->x + arrcvpntpPoints[0]->y * arrcvpntpPoints[0]->y);
     for (int i = 1; i< 4; i++)
     {
-        double tmpVectorLength = sqrt(points[i]->x * points[i]->x + points[i]->y * points[i]->y);
+        double tmpVectorLength = sqrt(arrcvpntpPoints[i]->x * arrcvpntpPoints[i]->x + arrcvpntpPoints[i]->y * arrcvpntpPoints[i]->y);
         if (tmpVectorLength < vectorLength)
         {
             vectorLength = tmpVectorLength;
@@ -347,17 +347,17 @@ CvPoint** getOuterRectangle(CvSeq* squares)
             outerRectangle = rect;
             for (int j = 0; j < 4; j++)
             {
-                points[j] = tmpPoints[j];
+                arrcvpntpPoints[j] = tmpPoints[j];
             }
         }
     }
 
-    normalizeRectanglePoints(points);
+    normalizeRectanglePoints(arrcvpntpPoints);
 
-    return points;
+    return arrcvpntpPoints;
 }
 
-void normalizeRectanglePoints(CvPoint** points)
+void normalizeRectanglePoints(CvPoint** cvpntppPoints)
 {
     // Точки могут располагаться в любом порядке, т.е. начинаться, например, с
     // правой нижней точки и идти против часовой, или по часовой. Т.е. с любой
@@ -365,27 +365,27 @@ void normalizeRectanglePoints(CvPoint** points)
     // часовой) нахожу центр фигуры, провожу через центр дополнительную систему
     // кординат (представляемо). Таким образом точки будут расположены в разных
     // четвертях плоскости.
-    int minX = points[0]->x;
-    int maxX = points[0]->x;
-    int minY = points[0]->y;
-    int maxY = points[0]->y;
+    int minX = cvpntppPoints[0]->x;
+    int maxX = cvpntppPoints[0]->x;
+    int minY = cvpntppPoints[0]->y;
+    int maxY = cvpntppPoints[0]->y;
     for (int i = 1; i < 4; i++)
     {
-        if (points[i]->x < minX)
+        if (cvpntppPoints[i]->x < minX)
         {
-            minX = points[i]->x;
+            minX = cvpntppPoints[i]->x;
         }
-        if (points[i]->x > maxX)
+        if (cvpntppPoints[i]->x > maxX)
         {
-            maxX = points[i]->x;
+            maxX = cvpntppPoints[i]->x;
         }
-        if (points[i]->y < minY)
+        if (cvpntppPoints[i]->y < minY)
         {
-            minY = points[i]->y;
+            minY = cvpntppPoints[i]->y;
         }
-        if (points[i]->y > maxY)
+        if (cvpntppPoints[i]->y > maxY)
         {
-            maxY = points[i]->y;
+            maxY = cvpntppPoints[i]->y;
         }
     }
     int abscissa = minX + (int)( (double)(maxX - minX) / 2. );
@@ -394,261 +394,266 @@ void normalizeRectanglePoints(CvPoint** points)
     {
         CvPoint* buf;
         // Top left point
-        if (points[i]->x < abscissa && points[i]->y < ordinate)
+        if (cvpntppPoints[i]->x < abscissa && cvpntppPoints[i]->y < ordinate)
         {
-            buf = points[0];
-            points[0] = points[i];
-            points[i] = buf;
+            buf = cvpntppPoints[0];
+            cvpntppPoints[0] = cvpntppPoints[i];
+            cvpntppPoints[i] = buf;
         }
         // Top right point
-        if (points[i]->x > abscissa && points[i]->y < ordinate)
+        if (cvpntppPoints[i]->x > abscissa && cvpntppPoints[i]->y < ordinate)
         {
-            buf = points[1];
-            points[1] = points[i];
-            points[i] = buf;
+            buf = cvpntppPoints[1];
+            cvpntppPoints[1] = cvpntppPoints[i];
+            cvpntppPoints[i] = buf;
         }
         // Bottom right point
-        if (points[i]->x > abscissa && points[i]->y > ordinate)
+        if (cvpntppPoints[i]->x > abscissa && cvpntppPoints[i]->y > ordinate)
         {
-            buf = points[2];
-            points[2] = points[i];
-            points[i] = buf;
+            buf = cvpntppPoints[2];
+            cvpntppPoints[2] = cvpntppPoints[i];
+            cvpntppPoints[i] = buf;
         }
         // Bottom left point
-        if (points[i]->x < abscissa && points[i]->y > ordinate)
+        if (cvpntppPoints[i]->x < abscissa && cvpntppPoints[i]->y > ordinate)
         {
-            buf = points[3];
-            points[3] = points[i];
-            points[i] = buf;
+            buf = cvpntppPoints[3];
+            cvpntppPoints[3] = cvpntppPoints[i];
+            cvpntppPoints[i] = buf;
         }
     }
 }
 
-IplImage* cropImage( IplImage** tmpImg, CvPoint*** outerRectangle )
+IplImage* cropImage( IplImage** iplimgSrc, CvPoint*** outerRectangle )
 {
     /* sets the Region of Interest
        Note that the rectangle area has to be __INSIDE__ the image */
-    cvSetImageROI(  *tmpImg,
+    cvSetImageROI(  *iplimgSrc,
                     cvRect(     (*outerRectangle)[0]->x,
                                 (*outerRectangle)[0]->y,
                                 (*outerRectangle)[2]->x - (*outerRectangle)[0]->x,
                                 (*outerRectangle)[2]->y - (*outerRectangle)[0]->y));
     /* create destination image
        Note that cvGetSize will return the width and the height of ROI */
-    IplImage* img2 = cvCreateImage(    cvGetSize(*tmpImg),
-                                       (*tmpImg)->depth,
-                                       (*tmpImg)->nChannels);
+    IplImage* img2 = cvCreateImage(    cvGetSize(*iplimgSrc),
+                                       (*iplimgSrc)->depth,
+                                       (*iplimgSrc)->nChannels);
     /* copy subimage */
-    cvCopy(*tmpImg, img2, NULL);
+    cvCopy(*iplimgSrc, img2, NULL);
     /* always reset the Region of Interest */
-    cvResetImageROI(*tmpImg);
+    cvResetImageROI(*iplimgSrc);
     return img2;
 }
 
-IplImage* getSubimage(IplImage* tmpImg, CvRect roi)
+IplImage* getSubimage(IplImage* iplimgSrc, CvRect roi)
 {
     IplImage *result;
     // set ROI, you may use following two funs:
     //cvSetImageROI( image, cvRect( 0, 0, image->width, image->height ));
-    cvSetImageROI(tmpImg, roi);
+    cvSetImageROI(iplimgSrc, roi);
     // sub-image
-    result = cvCreateImage( cvGetSize(tmpImg), tmpImg->depth, tmpImg->nChannels );
-    cvCopy(tmpImg, result, NULL);
-    cvResetImageROI(tmpImg); // release image ROI
+    result = cvCreateImage( cvGetSize(iplimgSrc), iplimgSrc->depth, iplimgSrc->nChannels );
+    cvCopy(iplimgSrc, result, NULL);
+    cvResetImageROI(iplimgSrc); // release image ROI
     return result;
 }
 
-IplImage* copyImage(IplImage* image)
+IplImage* copyImage(IplImage* iplimgSrc)
 {
-    return cvClone(image);
+    return cvClone(iplimgSrc);
 }
 
-IplImage* avoidThreshold(IplImage* src, int thresholdLevel)
+IplImage* avoidThreshold(IplImage* iplimgSrc, int iThresholdLevel)
 {
-    IplImage* res = cvCreateImage(cvSize(src->width, src->height), 8, 1);
+    IplImage* iplimgResult = cvCreateImage(cvSize(iplimgSrc->width, iplimgSrc->height), 8, 1);
 
-    CvSize sz = cvSize( src->width , src->height );
-    IplImage* timg = cvCloneImage( src ); // make a copy of input image
-    cvSetImageROI( timg, cvRect( 0, 0, sz.width, sz.height ));
-    IplImage* pyr = cvCreateImage( cvSize(sz.width/2, sz.height/2), 8, 3 );
-    cvPyrDown( timg, pyr, 7 );
-    cvPyrUp( pyr, timg, 7 );
-    IplImage* tgray = cvCreateImage( sz, 8, 1 );
-    cvSetImageCOI( timg, 1 );
-    cvCopy( timg, tgray, 0 );
-    cvThreshold( tgray, res, thresholdLevel, 255, CV_THRESH_BINARY );
-    return res;
+    CvSize szSrc = cvSize( iplimgSrc->width , iplimgSrc->height );
+    IplImage* iplimgTimg = cvCloneImage( iplimgSrc ); // make a copy of input image
+    cvSetImageROI( iplimgTimg, cvRect( 0, 0, szSrc.width, szSrc.height ));
+    IplImage* iplimgPyr = cvCreateImage( cvSize(szSrc.width/2, szSrc.height/2), 8, 3 );
+    cvPyrDown( iplimgTimg, iplimgPyr, 7 );
+    cvPyrUp( iplimgPyr, iplimgTimg, 7 );
+    IplImage* iplimgTgray = cvCreateImage( szSrc, 8, 1 );
+    cvSetImageCOI( iplimgTimg, 1 );
+    cvCopy( iplimgTimg, iplimgTgray, 0 );
+    cvThreshold( iplimgTgray, iplimgResult, iThresholdLevel, 255, CV_THRESH_BINARY );
+    return iplimgResult;
 }
 
-CvSeq* getCheckedSign(IplImage* image, CvMemStorage* storage)
+CvSeq* getCheckedSign(IplImage* iplimgSrc, CvMemStorage* cvmempStorage)
 {
-    CvSeq* contours;
-    cvFindContours( image, storage, &contours, sizeof(CvContour), CV_RETR_LIST, CV_CHAIN_APPROX_SIMPLE, cvPoint(0,0) );
-    return filterImageBorderSquare( contours, storage );
+    CvSeq* seqpContours;
+    cvFindContours( iplimgSrc, cvmempStorage, &seqpContours, sizeof(CvContour), CV_RETR_LIST, CV_CHAIN_APPROX_SIMPLE, cvPoint(0,0) );
+    return filterImageBorderSquare( seqpContours, cvmempStorage );
 }
 
-CvPoint getRectangleCenter(CvPoint point0, CvPoint point1, CvPoint point2, CvPoint point3 )
+CvPoint getRectangleCenter(CvPoint pntPoint0, CvPoint pntPoint1, CvPoint pntPoint2, CvPoint pntPoint3 )
 {
     //TODO: normalize it
-    CvPoint figure[4];
-    figure[0] = point0;
-    figure[1] = point1;
-    figure[2] = point2;
-    figure[3] = point3;
-    CvPoint center;
-    int minX = figure[0].x;
-    int maxX = figure[0].x;
-    int minY = figure[0].y;
-    int maxY = figure[0].y;
+    CvPoint arrpntFigure[4];
+    arrpntFigure[0] = pntPoint0;
+    arrpntFigure[1] = pntPoint1;
+    arrpntFigure[2] = pntPoint2;
+    arrpntFigure[3] = pntPoint3;
+    CvPoint pntCenter;
+    int iMinX = arrpntFigure[0].x;
+    int iMaxX = arrpntFigure[0].x;
+    int iMinY = arrpntFigure[0].y;
+    int iMaxY = arrpntFigure[0].y;
     for (int i = 1; i < 4; i++)
     {
-        if (figure[i].x < minX)
+        if (arrpntFigure[i].x < iMinX)
         {
-            minX = figure[i].x;
+            iMinX = arrpntFigure[i].x;
         }
-        if (figure[i].x > maxX)
+        if (arrpntFigure[i].x > iMaxX)
         {
-            maxX = figure[i].x;
+            iMaxX = arrpntFigure[i].x;
         }
-        if (figure[i].y < minY)
+        if (arrpntFigure[i].y < iMinY)
         {
-            minY = figure[i].y;
+            iMinY = arrpntFigure[i].y;
         }
-        if (figure[i].y > maxY)
+        if (arrpntFigure[i].y > iMaxY)
         {
-            maxY = figure[i].y;
+            iMaxY = arrpntFigure[i].y;
         }
     }
-    center.x = minX + (maxX - minX) / 2;
-    center.y = minY + (maxY - minY) / 2;
-    return center;
+    pntCenter.x = iMinX + (iMaxX - iMinX) / 2;
+    pntCenter.y = iMinY + (iMaxY - iMinY) / 2;
+    return pntCenter;
 }
 
-CvPoint getSeqCenter(CvSeq* figure)
+CvPoint getSeqCenter(CvSeq* seqpFigure)
 {
-    CvPoint* point = (CvPoint*)cvGetSeqElem(figure, 0);
-    int minX = point->x;
-    int maxX = point->x;
-    int minY = point->y;
-    int maxY = point->y;
-    for (int i = 1; i < figure->total; i++)
+    CvPoint* pntpPoint = (CvPoint*)cvGetSeqElem(seqpFigure, 0);
+    int iMinX = pntpPoint->x;
+    int iMaxX = pntpPoint->x;
+    int iMinY = pntpPoint->y;
+    int iMaxY = pntpPoint->y;
+    for (int i = 1; i < seqpFigure->total; i++)
     {
-        point = (CvPoint*)cvGetSeqElem(figure, i);
-        if (point->x < minX)
+        pntpPoint = (CvPoint*)cvGetSeqElem(seqpFigure, i);
+        if (pntpPoint->x < iMinX)
         {
-            minX = point->x;
+            iMinX = pntpPoint->x;
         }
-        if (point->x > maxX)
+        if (pntpPoint->x > iMaxX)
         {
-            maxX = point->x;
+            iMaxX = pntpPoint->x;
         }
-        if (point->y < minY)
+        if (pntpPoint->y < iMinY)
         {
-            minY = point->y;
+            iMinY = pntpPoint->y;
         }
-        if (point->y > maxY)
+        if (pntpPoint->y > iMaxY)
         {
-            maxY = point->y;
+            iMaxY = pntpPoint->y;
         }
     }
-    CvPoint center = cvPoint(minX + (maxX - minX) / 2, minY + (maxY - minY) / 2);
-    return center;
+    CvPoint pntCenter = cvPoint(iMinX + (iMaxX - iMinX) / 2, iMinY + (iMaxY - iMinY) / 2);
+    return pntCenter;
 }
 
-CvPoint* getRectanglesCenters(CvSeq* figures)
+CvPoint* getRectanglesCenters(CvSeq* seqpFigures)
 {
-    CvPoint centers[figures->total / 4];
-    for (int i = 0; i < figures->total; i += 4)
+    CvPoint arrpntCenters[seqpFigures->total / 4];
+    for (int i = 0; i < seqpFigures->total; i += 4)
     {
-        CvPoint* points[4];
-        points[0] = (CvPoint*)cvGetSeqElem(figures, i + 0);
-        points[1] = (CvPoint*)cvGetSeqElem(figures, i + 1);
-        points[2] = (CvPoint*)cvGetSeqElem(figures, i + 2);
-        points[3] = (CvPoint*)cvGetSeqElem(figures, i + 3);
-        centers[i / 4] = getRectangleCenter(*points[0], *points[1], *points[2], *points[3]);
+        CvPoint* arrcvpntpPoints[4];
+        arrcvpntpPoints[0] = (CvPoint*)cvGetSeqElem(seqpFigures, i + 0);
+        arrcvpntpPoints[1] = (CvPoint*)cvGetSeqElem(seqpFigures, i + 1);
+        arrcvpntpPoints[2] = (CvPoint*)cvGetSeqElem(seqpFigures, i + 2);
+        arrcvpntpPoints[3] = (CvPoint*)cvGetSeqElem(seqpFigures, i + 3);
+        arrpntCenters[i / 4] = getRectangleCenter(*arrcvpntpPoints[0], *arrcvpntpPoints[1], *arrcvpntpPoints[2], *arrcvpntpPoints[3]);
     }
-    return &(centers[0]);
+    return &(arrpntCenters[0]);
 }
 
-int getCheckedPosition(CvSeq* checkboxes, CvSeq* checkedFigure)
+int findCheckboxSimilarToChoiceSign(CvSeq* seqpCheckboxes, CvPoint* arrpntpPointsOfCheckboxes[], CvPoint* pntpSomePointOfCheckedFigure)
 {
-    int result = checkboxes->total / 4 + 1;
-    CvPoint* somePointOfCheckedFigure = (CvPoint*)cvGetSeqElem(checkedFigure, 0);
+    int iSimilar = -1;
+    //const int MIN_VECTOR_LENGTH_FOR_SIMILARITY = 40;
+    for (int i = 0; i < seqpCheckboxes->total / 4; i++)
+    {
+        int x2 = pow(arrpntpPointsOfCheckboxes[i]->x - pntpSomePointOfCheckedFigure->x, 2);
+        int y2 = pow(arrpntpPointsOfCheckboxes[i]->y - pntpSomePointOfCheckedFigure->y, 2);
+        int vector = sqrt(x2 + y2);
+        if (vector < MIN_VECTOR_LENGTH_FOR_SIMILARITY)
+        {
+            iSimilar = i + 1;
+            break;
+        }
+    }
+    return iSimilar;
+}
+
+int getCheckedPosition(CvSeq* seqpCheckboxes, CvSeq* seqCheckedFigure)
+{
+    int iResult = seqpCheckboxes->total / 4 + 1;
+    CvPoint* pntpSomePointOfCheckedFigure = (CvPoint*)cvGetSeqElem(seqCheckedFigure, 0);
 
 /*
-        CvPoint* sign[checkedFigure->total];
-        for(int i = 0; i < checkedFigure->total; i++)
+        CvPoint* sign[seqCheckedFigure->total];
+        for(int i = 0; i < seqCheckedFigure->total; i++)
         {
-            sign[i] = (CvPoint*)cvGetSeqElem(checkedFigure, i);
+            sign[i] = (CvPoint*)cvGetSeqElem(seqCheckedFigure, i);
         }
 */
 
-    CvPoint* pointsOfCheckboxes[checkboxes->total / 4];
-    for (int i = 0; i < checkboxes->total; i += 4)
+    CvPoint* arrpntpPointsOfCheckboxes[seqpCheckboxes->total / 4];
+    for (int i = 0; i < seqpCheckboxes->total; i += 4)
     {
-        pointsOfCheckboxes[i / 4] = (CvPoint*)cvGetSeqElem(checkboxes, i);
+        arrpntpPointsOfCheckboxes[i / 4] = (CvPoint*)cvGetSeqElem(seqpCheckboxes, i);
     }
     // Order by y axis
-    CvPoint buf;
-    for (int i = checkboxes->total / 4 - 1; i > 0; i--)
+    CvPoint pntBuf;
+    for (int i = seqpCheckboxes->total / 4 - 1; i > 0; i--)
         for (int j = 0; j < i; j++)
         {
-            if (pointsOfCheckboxes[j]->y > pointsOfCheckboxes[j + 1]->y)
+            if (arrpntpPointsOfCheckboxes[j]->y > arrpntpPointsOfCheckboxes[j + 1]->y)
             {
-                buf = *(pointsOfCheckboxes[j]);
-                *(pointsOfCheckboxes[j]) = *(pointsOfCheckboxes[j + 1]);
-                *(pointsOfCheckboxes[j + 1]) = buf;
+                pntBuf = *(arrpntpPointsOfCheckboxes[j]);
+                *(arrpntpPointsOfCheckboxes[j]) = *(arrpntpPointsOfCheckboxes[j + 1]);
+                *(arrpntpPointsOfCheckboxes[j + 1]) = pntBuf;
             }
         }
 
     //Similarity
-    //HARDCODE: do it the right way
-    int similar = -1;
-    //const int MIN_VECTOR_LENGTH_FOR_SIMILARITY = 40;
-    for (int i = 0; i < checkboxes->total / 4; i++)
-    {
-        int x2 = pow(pointsOfCheckboxes[i]->x - somePointOfCheckedFigure->x, 2);
-        int y2 = pow(pointsOfCheckboxes[i]->y - somePointOfCheckedFigure->y, 2);
-        int vector = sqrt(x2 + y2);
-        if (vector < MIN_VECTOR_LENGTH_FOR_SIMILARITY)
-        {
-            similar = i + 1;
-            break;
-        }
-    }
+    int iSimilar = findCheckboxSimilarToChoiceSign(seqpCheckboxes, arrpntpPointsOfCheckboxes, pntpSomePointOfCheckedFigure);
 
-    if (similar > 0)
-        result = similar;
+    if (iSimilar > 0)
+        iResult = iSimilar;
     else
-        for (int i = 0; i < checkboxes->total / 4 - 1; i++)
+        for (int i = 0; i < seqpCheckboxes->total / 4 - 1; i++)
         {
-            CvPoint* somePointOfCheckbox = pointsOfCheckboxes[i];
-            CvPoint* somePointOfNextCheckbox = pointsOfCheckboxes[i + 1];
+            CvPoint* pntpSomePointOfCheckbox = arrpntpPointsOfCheckboxes[i];
+            CvPoint* pntpSomePointOfNextCheckbox = arrpntpPointsOfCheckboxes[i + 1];
 
-            if ( abs(somePointOfCheckbox->y - somePointOfCheckedFigure->y) < MIN_Y_LENGTH_FOR_SIMILARITY )
+            if ( abs(pntpSomePointOfCheckbox->y - pntpSomePointOfCheckedFigure->y) < MIN_Y_LENGTH_FOR_SIMILARITY )
             {
-                result = i + 1;
+                iResult = i + 1;
                 break;
             }
             else
             {
-                if (0 == i && somePointOfCheckedFigure->y < somePointOfCheckbox->y)
+                if (0 == i && pntpSomePointOfCheckedFigure->y < pntpSomePointOfCheckbox->y)
                 {
-                    result = 1;
+                    iResult = 1;
                     break;
                 }
                 else
                 {
-                    if (somePointOfCheckedFigure->y > somePointOfCheckbox->y && somePointOfCheckedFigure->y < somePointOfNextCheckbox->y)
+                    if (pntpSomePointOfCheckedFigure->y > pntpSomePointOfCheckbox->y && pntpSomePointOfCheckedFigure->y < pntpSomePointOfNextCheckbox->y)
                     {
-                        result = i + 2;
+                        iResult = i + 2;
                         break;
                     }
                     else
                     {
-                        if (i == checkboxes->total / 4 - 1)
+                        if (i == seqpCheckboxes->total / 4 - 1)
                         {
-                            result = checkboxes->total / 4 + 1;
+                            iResult = seqpCheckboxes->total / 4 + 1;
                             break;
                         }
                     }
@@ -656,119 +661,118 @@ int getCheckedPosition(CvSeq* checkboxes, CvSeq* checkedFigure)
             }
         }
 
-    return result;
+    return iResult;
 }
 
-int getTotalConsideringSimilarityOfSequences(CvSeq* checkboxes, CvSeq* checkedFigure)
+int getTotalConsideringSimilarityOfSequences(CvSeq* seqpCheckboxes, CvSeq* seqCheckedFigure)
 {
-    int result = checkboxes->total / 4;
-    CvPoint* checkboxesCenters = getRectanglesCenters(checkboxes);
-    CvPoint checkedFigureCenter = getSeqCenter(checkedFigure);
+    int iResult = seqpCheckboxes->total / 4;
+    CvPoint* pntpCheckboxesCenters = getRectanglesCenters(seqpCheckboxes);
+    CvPoint pntCheckedFigureCenter = getSeqCenter(seqCheckedFigure);
 
     /*
      * HARDCODE: creating fixed sized copy of array, because var sized array
      * rewrites on next for-cycle interation
      */
-    CvPoint tmpArr[10];
-    for (int i = 0; i < result; i++)
+    CvPoint arrpntBuf[10];
+    for (int i = 0; i < iResult; i++)
     {
-        tmpArr[i] = checkboxesCenters[i];
+        arrpntBuf[i] = pntpCheckboxesCenters[i];
     }
 
     //HARDCODE: do it the right way
-    int similar = 0;
+    int iSimilar = 0;
     //const int MIN_VECTOR_LENGTH_FOR_SIMILARITY = 25;
-    for (int i = 0; i < result; i++)
+    for (int i = 0; i < iResult; i++)
     {
-        int x2 = pow(tmpArr[i].x - checkedFigureCenter.x, 2);
-        int y2 = pow(tmpArr[i].y - checkedFigureCenter.y, 2);
+        int x2 = pow(arrpntBuf[i].x - pntCheckedFigureCenter.x, 2);
+        int y2 = pow(arrpntBuf[i].y - pntCheckedFigureCenter.y, 2);
         int vector = sqrt(x2 + y2);
         if (vector < MIN_VECTOR_LENGTH_FOR_SIMILARITY)
         {
-            similar = 1;
+            iSimilar = 1;
             break;
         }
     }
 
-    return similar ? result : (result + 1);
+    return iSimilar ? iResult : (iResult + 1);
 }
 
-void getQuestionResults(    IplImage* image,
-                            CvMemStorage* storage,
-                            int thresh,
-                            int thresholdLevelToAllocateCheckedCheckboxes,
-                            int debug,
-                            char* wndname,
-                            int* resultOut)
+void getQuestionResults(    IplImage* iplimgSrc,
+                            CvMemStorage* cvmempStorage,
+                            int iThresh,
+                            int iThresholdLevelToAllocateCheckedCheckboxes,
+                            int bDebug,
+                            char* chpWndname,
+                            int* ipResultOut)
 {
-    IplImage* backup = copyImage(image);
-    image = avoidThreshold(backup, thresholdLevelToAllocateCheckedCheckboxes);
+    IplImage* iplimgBackup = copyImage(iplimgSrc);
+    iplimgSrc = avoidThreshold(iplimgBackup, iThresholdLevelToAllocateCheckedCheckboxes);
 
 /*
 window!
 */
-    if (debug)
+    if (bDebug)
     {
         cvNamedWindow("test", 1);
-        cvShowImage("test", image);
+        cvShowImage("test", iplimgSrc);
         cvWaitKey(0);
         cvDestroyWindow("test");
     }
 
-    CvSeq* checkedFigure = getCheckedSign(image, storage);
+    CvSeq* seqCheckedFigure = getCheckedSign(iplimgSrc, cvmempStorage);
 
-    CvSeq* checkboxes = findSquares4(backup, storage, 0, MIN_CHECKBOX_AREA, thresh);
-    if (debug)
+    CvSeq* seqpCheckboxes = findSquares4(iplimgBackup, cvmempStorage, 0, MIN_CHECKBOX_AREA, iThresh);
+    if (bDebug)
     {
-        drawSquares(&backup, checkboxes, wndname);
+        drawSquares(&iplimgBackup, seqpCheckboxes, chpWndname);
         cvWaitKey(0);
     }
-    checkboxes = filterSimilarSquares( checkboxes, SIMILAR_CHECKBOXES_DISTANCE, storage );
-    checkboxes = filterImageBorderSquare( checkboxes, storage );
+    seqpCheckboxes = filterSimilarSquares( seqpCheckboxes, SIMILAR_CHECKBOXES_DISTANCE, cvmempStorage );
+    seqpCheckboxes = filterImageBorderSquare( seqpCheckboxes, cvmempStorage );
 
 /*
 window!
 */
-    if(debug)
+    if(bDebug)
     {
-        drawSquares(&backup, checkboxes, wndname);
+        drawSquares(&iplimgBackup, seqpCheckboxes, chpWndname);
         cvWaitKey(0);
     }
 
-    if (checkboxes && checkboxes->total > 0)
+    if (seqpCheckboxes && seqpCheckboxes->total > 0)
     {
 
-        IplImage* testImg = cvCreateImage(cvSize(image->width, image->height), image->depth, image->nChannels);
 /*
 window!
 */
-        if (debug)
+        if (bDebug)
         {
-            drawSquares(&testImg, checkboxes, wndname);
+            /* TODO: заменить следующую строку функцией copyImage и проверить
+             * что будет
+             */
+            IplImage* iplimgCanvasCopy = cvCreateImage(cvSize(iplimgSrc->width, iplimgSrc->height), iplimgSrc->depth, iplimgSrc->nChannels);
+            drawSquares(&iplimgCanvasCopy, seqpCheckboxes, chpWndname);
             cvWaitKey(0);
         }
 
-        //printf("\n");
-        if (checkedFigure && checkedFigure->total > 0)
+        if (seqCheckedFigure && seqCheckedFigure->total > 0)
         {
-            int total = getTotalConsideringSimilarityOfSequences(checkboxes, checkedFigure);
-            *(resultOut + 1) = total;
-            int checkedPosition = getCheckedPosition(checkboxes, checkedFigure);
-            *(resultOut + 0) = checkedPosition;
-            //printf("%d / %d\n", result[0], result[1]);
+            int iTotal = getTotalConsideringSimilarityOfSequences(seqpCheckboxes, seqCheckedFigure);
+            *(ipResultOut + 1) = iTotal;
+            int checkedPosition = getCheckedPosition(seqpCheckboxes, seqCheckedFigure);
+            *(ipResultOut + 0) = checkedPosition;
         }
         else
         {
-            *(resultOut + 0) = NO_ANSWER; // none
-            *(resultOut + 1) = NO_ANSWER;
-            //printf("none\n");
+            *(ipResultOut + 0) = NO_ANSWER; // none
+            *(ipResultOut + 1) = NO_ANSWER;
         }
     }
     else
     {
-        *(resultOut + 0) = TEXT_ANSWER;
-        *(resultOut + 1) = TEXT_ANSWER; //text question
-        //printf("text question\n");
+        *(ipResultOut + 0) = TEXT_ANSWER;
+        *(ipResultOut + 1) = TEXT_ANSWER; //text question
     }
 }
 
@@ -783,68 +787,68 @@ window!
 //      ...
 //  ]
 //
-void recognize( IplImage* tmpImg,
-                CvSeq* squares,
-                CvMemStorage* storage,
-                int thresh,
-                int threshChecked,
-                int debug, 
-                char* wndname,
-                int** results,
-                int* totalQuestions )
+void recognize( IplImage* iplimgpTarget,
+                CvSeq* seqpQuestionRectangles,
+                CvMemStorage* cvmemStorage,
+                int iThresh,
+                int iThreshChecked,
+                int bDebug,
+                char* chpWndname,
+                int** ippResults,
+                int* ipTotalQuestions )
 {
     //loadConfig();
-    int mainBorderWidth = tmpImg->width;
-    const double ADMISSION_RATIO = 0.02;
-    IplImage* subimage, * subimage2;
-
-    *totalQuestions = squares->total / 4;
-    *results = (int*)malloc(2 * squares->total / 4 * sizeof(int));
-    for (int i = 0; i < squares->total; i += 4)
+    
+    *ipTotalQuestions = seqpQuestionRectangles->total / 4;
+    
+    *ippResults = (int*)malloc(2 * seqpQuestionRectangles->total / 4 * sizeof(int));
+    int iMainBorderWidth = iplimgpTarget->width;
+    IplImage* iplimgSubimage;
+    for (int i = 0; i < seqpQuestionRectangles->total; i += 4)
     {
-        CvPoint* points[4];
+        CvPoint* arrcvpntpPoints[4];
         for (int j = 0; j < 4; j++)
         {
-            points[j] = (CvPoint*)cvGetSeqElem(squares, i + j);
+            arrcvpntpPoints[j] = (CvPoint*)cvGetSeqElem(seqpQuestionRectangles, i + j);
         }
-        //normalizeRectanglePoints(points);
-        int questionBorderWidth = points[1]->x - points[0]->x;
+        
+        int iQuestionBorderWidth = arrcvpntpPoints[1]->x - arrcvpntpPoints[0]->x;
 
         // If width like question's width
-        double questionWidthRatio = (double)mainBorderWidth / (double)questionBorderWidth;
-        if ( questionWidthRatio > (QUESTION_TO_OUTER_RECT_WIDTH_RATIO - ADMISSION_RATIO) &&
-             questionWidthRatio < (QUESTION_TO_OUTER_RECT_WIDTH_RATIO + ADMISSION_RATIO)) // origin 455 - 40 (px) = 415 (px)
+        double dQuestionWidthRatio = (double)iMainBorderWidth / (double)iQuestionBorderWidth;
+        const double ADMISSION_RATIO = 0.02;
+        if ( dQuestionWidthRatio > (QUESTION_TO_OUTER_RECT_WIDTH_RATIO - ADMISSION_RATIO) &&
+             dQuestionWidthRatio < (QUESTION_TO_OUTER_RECT_WIDTH_RATIO + ADMISSION_RATIO)) // origin 455 - 40 (px) = 415 (px)
         {
-            subimage = getSubimage(
-                tmpImg,
-                cvRect(
-                    points[0]->x + (1 - CHECKBOXES_AREA_WIDTH_TO_QUESTION_WIDTH_RATIO) * questionBorderWidth,
-                    points[0]->y,
-                    CHECKBOXES_AREA_WIDTH_TO_QUESTION_WIDTH_RATIO * questionBorderWidth,
-                    points[2]->y - points[1]->y ));
+            CvRect cvrectCheckboxesAreaRectangle = cvRect(
+                arrcvpntpPoints[0]->x + (1 - CHECKBOXES_AREA_WIDTH_TO_QUESTION_WIDTH_RATIO) * iQuestionBorderWidth,
+                arrcvpntpPoints[0]->y,
+                CHECKBOXES_AREA_WIDTH_TO_QUESTION_WIDTH_RATIO * iQuestionBorderWidth,
+                arrcvpntpPoints[2]->y - arrcvpntpPoints[1]->y );
+            iplimgSubimage = getSubimage(iplimgpTarget, cvrectCheckboxesAreaRectangle);
 /*
 window!
 */
-            if (debug)
+            if (bDebug)
             {
                 cvNamedWindow( "Checkboxes", 1 );
-                cvShowImage( "Checkboxes", subimage );
+                cvShowImage( "Checkboxes", iplimgSubimage );
                 //cvWaitKey(0);
             }
 
-            getQuestionResults(subimage, storage, thresh, threshChecked, debug, wndname, *results + 2 * i / 4 );
+            getQuestionResults(iplimgSubimage, cvmemStorage, iThresh, iThreshChecked, bDebug, chpWndname, *ippResults + 2 * i / 4 );
 /*
 window!
 */
-            if (debug)
+            if (bDebug)
             {
                 cvDestroyWindow("Checkboxes");
             }
 
-            cvCircle(tmpImg, *(points[0]), 10, CV_RGB(255, 0, 0), 1, 8, 0);
-            cvCircle(tmpImg, *(points[1]), 10, CV_RGB(0, 255, 0), 1, 8, 0);
-            cvCircle(tmpImg, *(points[2]), 10, CV_RGB(0, 0, 255), 1, 8, 0);
-            cvCircle(tmpImg, *(points[3]), 10, CV_RGB(0, 255, 255), 1, 8, 0);
+            cvCircle(iplimgpTarget, *(arrcvpntpPoints[0]), 10, CV_RGB(255, 0, 0), 1, 8, 0);
+            cvCircle(iplimgpTarget, *(arrcvpntpPoints[1]), 10, CV_RGB(0, 255, 0), 1, 8, 0);
+            cvCircle(iplimgpTarget, *(arrcvpntpPoints[2]), 10, CV_RGB(0, 0, 255), 1, 8, 0);
+            cvCircle(iplimgpTarget, *(arrcvpntpPoints[3]), 10, CV_RGB(0, 255, 255), 1, 8, 0);
         }
     }
 }
