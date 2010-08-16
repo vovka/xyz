@@ -44,10 +44,17 @@ int main(int argc, char** argv)
     const char* filename;
     const char* outputResultsAs = "human";
     int showDialog = 0;
-    int minSquaresArea = 10000;
+    int minSquaresArea = 50000;//10000;
     int thresholdLevelToAllocateCheckedCheckboxes = 150;
     int debug = 0;
     int thresh = 50;
+    int minCheckboxArea = 50;
+    double questionToOuterRectWidthRatio = 1014. / 909.;
+    float checkboxesAreaWidthToQuestionWidthRatio = 0.1;
+    int similarCheckboxesDistance = 8;
+    int similarSquaresDistance = 20;
+    int minVectorLengthForSimilarity = 40;
+    int minYLengthForSimilarity = 10;
     
     if (!parseCmdParameters(
             argc,
@@ -58,7 +65,15 @@ int main(int argc, char** argv)
             &minSquaresArea,
             &thresholdLevelToAllocateCheckedCheckboxes,
             &debug,
-            &thresh))
+            &thresh,
+            &minCheckboxArea,
+            &questionToOuterRectWidthRatio,
+            &checkboxesAreaWidthToQuestionWidthRatio,
+            &similarCheckboxesDistance,
+            &similarSquaresDistance,
+            &minVectorLengthForSimilarity,
+            &minYLengthForSimilarity
+            ))
         return -1;
 
     int i, c;
@@ -74,7 +89,7 @@ int main(int argc, char** argv)
     img = cvCloneImage( img0 );
 
     CvSeq* squares = findSquares4( img, storage, 0, minSquaresArea, thresh );
-    squares = filterImageBorderSquare( filterSimilarSquares(squares, SIMILAR_SQUARES_DISTANCE, storage), storage );
+    squares = filterImageBorderSquare( filterSimilarSquares(squares, similarSquaresDistance, storage), storage );
 /*
 window!
 */
@@ -89,7 +104,7 @@ window!
     float ang = rotationAngle( outerRectangle );
     rotateImage( &img, &ang );
     squares = findSquares4( img, storage, 0, minSquaresArea, thresh ); // find squares again after rotation
-    squares =  filterSimilarSquares(squares, SIMILAR_SQUARES_DISTANCE, storage);
+    squares =  filterSimilarSquares(squares, similarSquaresDistance, storage);
     squares =  filterImageBorderSquare(squares, storage);
 /*
 window!
@@ -113,12 +128,29 @@ window!
     }
 
     squares = findSquares4( img, storage, 0, minSquaresArea, thresh ); // find squares again after crop
-    squares = filterImageBorderSquare( filterSimilarSquares(squares, SIMILAR_SQUARES_DISTANCE, storage), storage );
+    squares = filterImageBorderSquare( filterSimilarSquares(squares, similarSquaresDistance, storage), storage );
 
     int* results;
     int totalQuestions;
 
-    recognize( img, squares, storage, thresh, thresholdLevelToAllocateCheckedCheckboxes, debug, wndname, &results, &totalQuestions );
+    //IplImage* qr = getSubimage(img, cvRect(440, 0, 110, 110));
+    cvSaveImage("/tmp/rotated_image.png", (CvArr*)img, 0);
+    recognize( img,
+            squares,
+            storage,
+            thresh,
+            thresholdLevelToAllocateCheckedCheckboxes,
+            debug,
+            wndname,
+            &results,
+            &totalQuestions,
+            minCheckboxArea,
+            &questionToOuterRectWidthRatio,
+            &checkboxesAreaWidthToQuestionWidthRatio,
+            similarCheckboxesDistance,
+            minVectorLengthForSimilarity,
+            minYLengthForSimilarity
+            );
     outputResults(filename, &results, totalQuestions, outputResultsAs);
 
 /*
@@ -134,7 +166,7 @@ window!
     }
 
     stopTimeProfiling();
-    outputProfileInfo();
+    //outputProfileInfo();
 
 /*
 window!

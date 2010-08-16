@@ -10,17 +10,17 @@
  * прямоугольников с границей в 1 пиксел.
  * Применятеся для прямоугольника внешней границы, для прямоугольников вопросов. 
  */
-const int SIMILAR_SQUARES_DISTANCE = 20;
+//const int SIMILAR_SQUARES_DISTANCE = 20;
 
 /*
  * Минимальная площадь прямоугольников, которые могут быть чекбоксами
  */
-const int MIN_CHECKBOX_AREA = 1000;
+//const int MIN_CHECKBOX_AREA = 100;
 
 /*
  * То же, что и SIMILAR_SQUARES_DISTANCE, только применяется для чекбоксов.
  */
-const int SIMILAR_CHECKBOXES_DISTANCE = 8;
+//const int SIMILAR_CHECKBOXES_DISTANCE = 8;
 
 
 //const int MIN_VECTOR_LENGTH_FOR_SIMILARITY = 40;
@@ -28,9 +28,9 @@ const int SIMILAR_CHECKBOXES_DISTANCE = 8;
 /*
  * outer border width divided by question border width
  */
-const double QUESTION_TO_OUTER_RECT_WIDTH_RATIO = 1014. / 909.;
+//const double QUESTION_TO_OUTER_RECT_WIDTH_RATIO = 1014. / 909.;
 
-const float CHECKBOXES_AREA_WIDTH_TO_QUESTION_WIDTH_RATIO = 0.1;
+//const float CHECKBOXES_AREA_WIDTH_TO_QUESTION_WIDTH_RATIO = 0.1;
 
 /*
  * расстояние между первой точкой знака выбора чекбокса (то, что ставит
@@ -43,12 +43,12 @@ const float CHECKBOXES_AREA_WIDTH_TO_QUESTION_WIDTH_RATIO = 0.1;
  * rectangle checkbox, after which it is believed that the sign of choice is in
  * the rectangle checkbox
  */
-const int MIN_VECTOR_LENGTH_FOR_SIMILARITY = 40;
+//const int MIN_VECTOR_LENGTH_FOR_SIMILARITY = 40;
 
 /*
  * то же расстояние, но только по оси Y
  */
-const int MIN_Y_LENGTH_FOR_SIMILARITY = 10;
+//const int MIN_Y_LENGTH_FOR_SIMILARITY = 10;
 
 const int TEXT_ANSWER = -2;
 const int NO_ANSWER = -1;

@@ -50,6 +50,26 @@ int getNamedIntParam(char** argv, int* paramIndex, int* val, char** namesArr, in
     return 0;
 }
 
+double getNamedDoubleParam(char** argv, int* paramIndex, double* val, char** namesArr, int namesCount)
+{
+    int equal = -1;
+    for (int i = 0; i < namesCount; i++)
+    {
+        equal = strcmp(namesArr[i], argv[*paramIndex]);
+        if (0 == equal)
+        {
+            break;
+        }
+    }
+    if ( 0 == equal )
+    {
+        (*paramIndex)++;
+        *val = atof(argv[*paramIndex]);
+        return 1;
+    }
+    return 0;
+}
+
 int parseDialogParam(char* param, int* dialog)
 {
     int equal = strcmp("-dlg", param);
@@ -121,6 +141,83 @@ int parseThresholdToAllocateSquaresParam(char** argv, int* paramIndex, int* thre
                                 namesCount);
 }
 
+int parseMinCheckboxAreaParam(char** argv, int* paramIndex, int* minCheckboxArea)
+{
+    const int namesCount = 2;
+    char* paramsNames[] = {"-mca", "--min-checkbox-area"};
+    return getNamedIntParam(    argv,
+                                paramIndex,
+                                minCheckboxArea,
+                                paramsNames,
+                                namesCount);
+}
+
+int parseQuestionToOuterRectWidthRatioParam(char** argv, int* paramIndex, int* questionToOuterRectWidthRatio)
+{
+    const int namesCount = 2;
+    char* paramsNames[] = {"-qtorwr", "--question-to-outer-rect-width-ratio"};
+    return getNamedDoubleParam(    argv,
+                                paramIndex,
+                                questionToOuterRectWidthRatio,
+                                paramsNames,
+                                namesCount);
+}
+
+int parseCheckboxesAreaWidthToQuestionWidthRatio(char** argv, int* paramIndex, int* checkboxesAreaWidthToQuestionWidthRatio)
+{
+    const int namesCount = 2;
+    char* paramsNames[] = {"-cawtqwr", "--checkboxes-area-width-to-question-width-ratio"};
+    return getNamedDoubleParam(    argv,
+                                paramIndex,
+                                checkboxesAreaWidthToQuestionWidthRatio,
+                                paramsNames,
+                                namesCount);
+}
+
+int parseSimilarCheckboxesDistance(char** argv, int* paramIndex, int* similarCheckboxesDistance)
+{
+    const int namesCount = 2;
+    char* paramsNames[] = {"-scd", "--similar-checkboxes-distance"};
+    return getNamedDoubleParam(    argv,
+                                paramIndex,
+                                similarCheckboxesDistance,
+                                paramsNames,
+                                namesCount);
+}
+
+int parseSimilarSquaresDistance(char** argv, int* paramIndex, int* similarSquaresDistance)
+{
+    const int namesCount = 2;
+    char* paramsNames[] = {"-ssd", "--similar-squares-distance"};
+    return getNamedDoubleParam(    argv,
+                                paramIndex,
+                                similarSquaresDistance,
+                                paramsNames,
+                                namesCount);
+}
+
+int parseMinVectorLengthForSimilarity(char** argv, int* paramIndex, int* minVectorLengthForSimilarity)
+{
+    const int namesCount = 2;
+    char* paramsNames[] = {"-mvlfs", "--min-vector-length-for-similarity"};
+    return getNamedDoubleParam(    argv,
+                                paramIndex,
+                                minVectorLengthForSimilarity,
+                                paramsNames,
+                                namesCount);
+}
+
+int parseMinYLengthForSimilarity(char** argv, int* paramIndex, int* minYLengthForSimilarity)
+{
+    const int namesCount = 2;
+    char* paramsNames[] = {"-mYlfs", "--min-y-length-for-similarity"};
+    return getNamedDoubleParam(    argv,
+                                paramIndex,
+                                minYLengthForSimilarity,
+                                paramsNames,
+                                namesCount);
+}
+
 int parseCmdParameters(
         int argc,
         char** argv,
@@ -130,7 +227,15 @@ int parseCmdParameters(
         int* minSquaresArea,
         int* thresholdLevelToAllocateCheckedCheckboxes,
         int* debug,
-        int* thresh)
+        int* thresh, 
+        int* minCheckboxArea,
+        double* questionToOuterRectWidthRatio,
+        float* checkboxesAreaWidthToQuestionWidthRatio,
+        int* similarCheckboxesDistance,
+        int* similarSquaresDistance,
+        int* minVectorLengthForSimilarity,
+        int* minYLengthForSimilarity
+)
 {
     int res = parseFilenameParam(argc, argv, filename);
     if (res)
@@ -143,7 +248,14 @@ int parseCmdParameters(
                 parseMinSquaresAreaParam(argv, &i, minSquaresArea) ||
                 parseThresholdLevelToAllocateCheckedCheckboxes(argv, &i, thresholdLevelToAllocateCheckedCheckboxes) ||
                 parseThresholdToAllocateSquaresParam(argv, &i, thresh) ||
-                parseDebugModeParam(argv, &i, debug) ||
+                parseMinCheckboxAreaParam(argv, &i, minCheckboxArea) ||
+                parseQuestionToOuterRectWidthRatioParam(argv, &i, questionToOuterRectWidthRatio) ||
+                parseCheckboxesAreaWidthToQuestionWidthRatio(argv, &i, checkboxesAreaWidthToQuestionWidthRatio) ||
+                parseSimilarCheckboxesDistance(argv, &i, similarCheckboxesDistance) ||
+                parseSimilarSquaresDistance(argv, &i, similarSquaresDistance) ||
+                parseMinVectorLengthForSimilarity(argv, &i, minVectorLengthForSimilarity) ||
+                parseMinYLengthForSimilarity(argv, &i, minYLengthForSimilarity) ||
+                parseDebugModeParam(argv, &i, debug) || /* should always be last */
                 1
             );
         }

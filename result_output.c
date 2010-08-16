@@ -93,9 +93,19 @@ void defaultOutputResults(char* filename, int** results, int totalQuestions)
     printf("\n");
 }
 
+void machineOutputResults(char* filename, int** results, int totalQuestions)
+{
+    for (int i = totalQuestions - 1; i >= 0; i--)
+    {
+        printf("%d %d ", *(*results + 2 * i + 0), *(*results + 2 * i + 1));
+    }
+    printf("\n");
+}
+
 const int DEFAULT = 0;
 const int JSON = 1;
 const int HUMAN = 2;
+const int MACHINE = 3;
 
 int translateFormat(const char* format)
 {
@@ -103,6 +113,8 @@ int translateFormat(const char* format)
         return JSON;
     if (0 == strcmp(format, "human"))
         return HUMAN;
+    if (0 == strcmp(format, "machine"))
+        return MACHINE; 
     return DEFAULT;
 }
 
@@ -116,6 +128,9 @@ void outputResults(const char* filename, int** results, int totalQuestions, cons
             break;
         case 0:
             defaultOutputResults(filename, results, totalQuestions);
+            break;
+        case 3:
+            machineOutputResults(filename, results, totalQuestions);
             break;
         default:    //HUMAN
             humanOutputResults(filename, results, totalQuestions);
