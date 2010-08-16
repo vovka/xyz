@@ -1,1 +1,4 @@
 gcc -std=c99 -ggdb `pkg-config opencv --cflags --libs` main.c
+
+Get QR code with http://www.morovia.com/free-online-barcode-generator/qrcode-maker.php
+
