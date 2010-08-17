@@ -308,7 +308,7 @@ CvPoint** getOuterRectangle(CvSeq* squares)
     arrcvpntpPoints[3] = (CvPoint*)cvGetSeqElem(squares, 3);
 
     double vectorLength = sqrt(arrcvpntpPoints[0]->x * arrcvpntpPoints[0]->x + arrcvpntpPoints[0]->y * arrcvpntpPoints[0]->y);
-    for (int i = 1; i< 4; i++)
+    for (int i = 1; i < 4; i++)
     {
         double tmpVectorLength = sqrt(arrcvpntpPoints[i]->x * arrcvpntpPoints[i]->x + arrcvpntpPoints[i]->y * arrcvpntpPoints[i]->y);
         if (tmpVectorLength < vectorLength)
