@@ -12,19 +12,7 @@
         <configurationname>GizmoSimple</configurationname>
       </gizmo_options>
       <runprofile version="6">
-        <args>tests_for_recognize_square_checkboxes_qr_origin_rotated.jpg
---min-squares-area 25000
---threshold-level-to-allocate-checked-checkboxes 150
---debug
---threshold 50
---min-checkbox-area 50
---question-to-outer-rect-width-ratio 1.099426386
---checkboxes-area-width-to-question-width-ratio 0.1
---similar-checkboxes-distance 8
---similar-squares-distance 20
---min-vector-length-for-similarity 40
---min-y-length-for-similarity 10
-</args>
+        <args>scans/скан5.jpg --debug --min-squares-area 25000 --threshold-level-to-allocate-checked-checkboxes 160 --threshold 50 --min-checkbox-area 100 --question-to-outer-rect-width-ratio 1.11551155115512 --checkboxes-area-width-to-question-width-ratio 0.1 --similar-checkboxes-distance 10 --similar-squares-distance 20 --min-vector-length-for-similarity 50 --min-y-length-for-similarity 10</args>
         <rundir></rundir>
         <buildfirst>true</buildfirst>
         <console-type>0</console-type>

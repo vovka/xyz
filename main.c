@@ -39,11 +39,28 @@ float rotationAngle( /*CvSeq* outerRectangle*/ /*CvPoint* topLeft, CvPoint* bott
     return (float)(arctgRad / 3.14159265358979323846 * 180.);
 }
 
+/*
+    // All command line params example: 
+    --min-squares-area 25000
+    --threshold-level-to-allocate-checked-checkboxes 150
+    --debug
+    --threshold 50
+    --min-checkbox-area 50
+    --question-to-outer-rect-width-ratio 1.099426386
+    --checkboxes-area-width-to-question-width-ratio 0.1
+    --similar-checkboxes-distance 8
+    --similar-squares-distance 20
+    --min-vector-length-for-similarity 40
+    --min-y-length-for-similarity 10
+*/
 int main(int argc, char** argv)
 {
     const char* filename;
     const char* outputResultsAs = "human";
-    int showDialog = 0;
+    int showDialog = 1;
+    int debug = 1;
+/*
+    // Default:
     int minSquaresArea = 50000;//10000;
     int thresholdLevelToAllocateCheckedCheckboxes = 150;
     int debug = 0;
@@ -55,6 +72,23 @@ int main(int argc, char** argv)
     int similarSquaresDistance = 20;
     int minVectorLengthForSimilarity = 40;
     int minYLengthForSimilarity = 10;
+*/
+/*
+ * tests_for_recognize_square_checkboxes_qr_origin_rotated.jpg --debug --min-squares-area 25000 --threshold-level-to-allocate-checked-checkboxes 160 --threshold 50 --min-checkbox-area 50 --question-to-outer-rect-width-ratio 1.11551155115512 --checkboxes-area-width-to-question-width-ratio 0.1 --similar-checkboxes-distance 10 --similar-squares-distance 20 --min-vector-length-for-similarity 20 --min-y-length-for-similarity 10
+ *
+ * scans/скан5.jpg --debug --min-squares-area 25000 --threshold-level-to-allocate-checked-checkboxes 160 --threshold 50 --min-checkbox-area 100 --question-to-outer-rect-width-ratio 1.11551155115512 --checkboxes-area-width-to-question-width-ratio 0.1 --similar-checkboxes-distance 10 --similar-squares-distance 20 --min-vector-length-for-similarity 50 --min-y-length-for-similarity 10
+ */
+    int minSquaresArea = 25000;
+    int thresholdLevelToAllocateCheckedCheckboxes = 160;
+    int thresh = 50;
+    int minCheckboxArea = 50;
+    double questionToOuterRectWidthRatio = 1014. / 909.;
+    double checkboxesAreaWidthToQuestionWidthRatio = 0.1;
+    int similarCheckboxesDistance = 20;
+    int similarSquaresDistance = 20;
+    int minVectorLengthForSimilarity = 10;
+    int minYLengthForSimilarity = 10;
+
     
     if (!parseCmdParameters(
             argc,
@@ -134,6 +168,7 @@ window!
     int totalQuestions;
 
     //IplImage* qr = getSubimage(img, cvRect(440, 0, 110, 110));
+    //printf("questionToOuterRectWidthRatio: %f; checkboxesAreaWidthToQuestionWidthRatio: %f\n", questionToOuterRectWidthRatio, checkboxesAreaWidthToQuestionWidthRatio);
     cvSaveImage("/tmp/rotated_image.png", (CvArr*)img, 0);
     recognize( img,
             squares,

@@ -1,4 +1,7 @@
-int parseFilenameParam(int argc, char** argv, const char** filename)
+#include <string.h>
+#include <stdlib.h>
+
+parseFilenameParam(int argc, char** argv, const char** filename)
 {
     if (argc > 1)
     {
@@ -58,14 +61,29 @@ double getNamedDoubleParam(char** argv, int* paramIndex, double* val, char** nam
         equal = strcmp(namesArr[i], argv[*paramIndex]);
         if (0 == equal)
         {
-            break;
+/*
+            int length = 0;
+            for (;*(argv[*paramIndex + 1] + length) != 0; length++){}
+            char strParam[length];
+            for (int j = 0; j < length; j++)
+            {
+                strParam[j] = *(argv[*paramIndex + 1] + j);
+            }
+            char buf[length];
+            for (int j = 0; j < length; j++)
+            {
+                buf[j] = strParam[j];
+            }
+            
+            int l = strlen(buf);
+*/
+            (*paramIndex)++;
+            //*val = atof(argv[*paramIndex]);
+            //double r = strtof(strParam);
+            double r = strtold(argv[*paramIndex], &(argv[*paramIndex]));
+            *val = r;
+            return 1;
         }
-    }
-    if ( 0 == equal )
-    {
-        (*paramIndex)++;
-        *val = atof(argv[*paramIndex]);
-        return 1;
     }
     return 0;
 }
@@ -152,7 +170,7 @@ int parseMinCheckboxAreaParam(char** argv, int* paramIndex, int* minCheckboxArea
                                 namesCount);
 }
 
-int parseQuestionToOuterRectWidthRatioParam(char** argv, int* paramIndex, int* questionToOuterRectWidthRatio)
+int parseQuestionToOuterRectWidthRatioParam(char** argv, int* paramIndex, double* questionToOuterRectWidthRatio)
 {
     const int namesCount = 2;
     char* paramsNames[] = {"-qtorwr", "--question-to-outer-rect-width-ratio"};
@@ -163,7 +181,7 @@ int parseQuestionToOuterRectWidthRatioParam(char** argv, int* paramIndex, int* q
                                 namesCount);
 }
 
-int parseCheckboxesAreaWidthToQuestionWidthRatio(char** argv, int* paramIndex, int* checkboxesAreaWidthToQuestionWidthRatio)
+int parseCheckboxesAreaWidthToQuestionWidthRatio(char** argv, int* paramIndex, double* checkboxesAreaWidthToQuestionWidthRatio)
 {
     const int namesCount = 2;
     char* paramsNames[] = {"-cawtqwr", "--checkboxes-area-width-to-question-width-ratio"};
@@ -178,7 +196,7 @@ int parseSimilarCheckboxesDistance(char** argv, int* paramIndex, int* similarChe
 {
     const int namesCount = 2;
     char* paramsNames[] = {"-scd", "--similar-checkboxes-distance"};
-    return getNamedDoubleParam(    argv,
+    return getNamedIntParam(    argv,
                                 paramIndex,
                                 similarCheckboxesDistance,
                                 paramsNames,
@@ -189,7 +207,7 @@ int parseSimilarSquaresDistance(char** argv, int* paramIndex, int* similarSquare
 {
     const int namesCount = 2;
     char* paramsNames[] = {"-ssd", "--similar-squares-distance"};
-    return getNamedDoubleParam(    argv,
+    return getNamedIntParam(    argv,
                                 paramIndex,
                                 similarSquaresDistance,
                                 paramsNames,
@@ -200,7 +218,7 @@ int parseMinVectorLengthForSimilarity(char** argv, int* paramIndex, int* minVect
 {
     const int namesCount = 2;
     char* paramsNames[] = {"-mvlfs", "--min-vector-length-for-similarity"};
-    return getNamedDoubleParam(    argv,
+    return getNamedIntParam(    argv,
                                 paramIndex,
                                 minVectorLengthForSimilarity,
                                 paramsNames,
@@ -211,7 +229,7 @@ int parseMinYLengthForSimilarity(char** argv, int* paramIndex, int* minYLengthFo
 {
     const int namesCount = 2;
     char* paramsNames[] = {"-mYlfs", "--min-y-length-for-similarity"};
-    return getNamedDoubleParam(    argv,
+    return getNamedIntParam(    argv,
                                 paramIndex,
                                 minYLengthForSimilarity,
                                 paramsNames,
@@ -230,7 +248,7 @@ int parseCmdParameters(
         int* thresh, 
         int* minCheckboxArea,
         double* questionToOuterRectWidthRatio,
-        float* checkboxesAreaWidthToQuestionWidthRatio,
+        double* checkboxesAreaWidthToQuestionWidthRatio,
         int* similarCheckboxesDistance,
         int* similarSquaresDistance,
         int* minVectorLengthForSimilarity,

@@ -803,7 +803,7 @@ void recognize( IplImage* iplimgpTarget,
                 int* ipTotalQuestions,
                 int minCheckboxArea,
                 double* questionToOuterRectWidthRatio,
-                float* checkboxesAreaWidthToQuestionWidthRatio,
+                double* checkboxesAreaWidthToQuestionWidthRatio,
                 int similarCheckboxesDistance,
                 int minVectorLengthForSimilarity,
                 int minYLengthForSimilarity
