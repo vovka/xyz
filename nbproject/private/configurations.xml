@@ -12,7 +12,7 @@
         <configurationname>GizmoSimple</configurationname>
       </gizmo_options>
       <runprofile version="6">
-        <args>scans/скан5.jpg --debug --min-squares-area 25000 --threshold-level-to-allocate-checked-checkboxes 160 --threshold 50 --min-checkbox-area 100 --question-to-outer-rect-width-ratio 1.11551155115512 --checkboxes-area-width-to-question-width-ratio 0.1 --similar-checkboxes-distance 10 --similar-squares-distance 20 --min-vector-length-for-similarity 50 --min-y-length-for-similarity 10</args>
+        <args>/home/vovka/development/cpp/FormReader/scans/Скан2.jpg --min-squares-area 50000 --threshold-level-to-allocate-checked-checkboxes 100  --threshold 50 --min-checkbox-area 500 --question-to-outer-rect-width-ratio 1.11551155115512 --checkboxes-area-width-to-question-width-ratio 0.1 --similar-checkboxes-distance 30 --similar-squares-distance 50 --min-vector-length-for-similarity 60 --min-y-length-for-similarity 70</args>
         <rundir></rundir>
         <buildfirst>true</buildfirst>
         <console-type>0</console-type>

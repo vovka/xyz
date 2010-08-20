@@ -1,5 +1,7 @@
 #include "helpers.h"
 
+#define concat(arg1,arg2) arg1 ## arg2
+
 /*
 const int THRESHOLD_LEVEL_TO_ALLOCATE_CHECKED_CHECKBOX = 100;//162;
 //const int THRESHOLD_LEVEL_TO_ALLOCATE_ALL_CHECKBOXES = 300;//231;
@@ -815,7 +817,8 @@ void recognize( IplImage* iplimgpTarget,
     
     *ippResults = (int*)malloc(2 * seqpQuestionRectangles->total / 4 * sizeof(int));
     int iMainBorderWidth = iplimgpTarget->width;
-    IplImage* iplimgSubimage;
+    IplImage* iplimgpQuestionAnswers;
+    IplImage* iplimgpQuestion;
     for (int i = 0; i < seqpQuestionRectangles->total; i += 4)
     {
         CvPoint* arrcvpntpPoints[4];
@@ -837,29 +840,43 @@ void recognize( IplImage* iplimgpTarget,
                 arrcvpntpPoints[0]->y,
                 *checkboxesAreaWidthToQuestionWidthRatio * iQuestionBorderWidth,
                 arrcvpntpPoints[2]->y - arrcvpntpPoints[1]->y );
-            iplimgSubimage = getSubimage(iplimgpTarget, cvrectCheckboxesAreaRectangle);
+            iplimgpQuestionAnswers = getSubimage(iplimgpTarget, cvrectCheckboxesAreaRectangle);
+
+            CvRect rectQuestion = cvRect(
+                arrcvpntpPoints[0]->x,
+                arrcvpntpPoints[0]->y,
+                arrcvpntpPoints[1]->x - arrcvpntpPoints[0]->x,
+                arrcvpntpPoints[2]->y - arrcvpntpPoints[1]->y
+            );
+            iplimgpQuestion = getSubimage(iplimgpTarget, rectQuestion);
 /*
 window!
 */
             if (bDebug)
             {
                 cvNamedWindow( "Checkboxes", 1 );
-                cvShowImage( "Checkboxes", iplimgSubimage );
-                //cvWaitKey(0);
+                cvShowImage( "Checkboxes", iplimgpQuestionAnswers );
+                cvWaitKey(0);
             }
 
-            getQuestionResults(iplimgSubimage, 
-                    cvmemStorage,
-                    iThresh,
-                    iThreshChecked,
-                    bDebug,
-                    chpWndname,
-                    *ippResults + 2 * i / 4,
-                    minCheckboxArea,
-                    similarCheckboxesDistance,
-                    minVectorLengthForSimilarity,
-                    minYLengthForSimilarity
-                    );
+            char filepath[i / 4 / 10 + 1];
+            sprintf(filepath, "/tmp/question-%d.jpg", seqpQuestionRectangles->total / 4 - i / 4);
+
+            cvSaveImage(filepath, iplimgpQuestion, 0);
+            
+            getQuestionResults(
+                iplimgpQuestionAnswers,
+                cvmemStorage,
+                iThresh,
+                iThreshChecked,
+                bDebug,
+                chpWndname,
+                *ippResults + 2 * i / 4,
+                minCheckboxArea,
+                similarCheckboxesDistance,
+                minVectorLengthForSimilarity,
+                minYLengthForSimilarity
+            );
 /*
 window!
 */

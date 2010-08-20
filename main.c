@@ -57,8 +57,8 @@ int main(int argc, char** argv)
 {
     const char* filename;
     const char* outputResultsAs = "human";
-    int showDialog = 1;
-    int debug = 1;
+    int showDialog = 0;
+    int debug = 0;
 /*
     // Default:
     int minSquaresArea = 50000;//10000;
@@ -170,22 +170,23 @@ window!
     //IplImage* qr = getSubimage(img, cvRect(440, 0, 110, 110));
     //printf("questionToOuterRectWidthRatio: %f; checkboxesAreaWidthToQuestionWidthRatio: %f\n", questionToOuterRectWidthRatio, checkboxesAreaWidthToQuestionWidthRatio);
     cvSaveImage("/tmp/rotated_image.png", (CvArr*)img, 0);
-    recognize( img,
-            squares,
-            storage,
-            thresh,
-            thresholdLevelToAllocateCheckedCheckboxes,
-            debug,
-            wndname,
-            &results,
-            &totalQuestions,
-            minCheckboxArea,
-            &questionToOuterRectWidthRatio,
-            &checkboxesAreaWidthToQuestionWidthRatio,
-            similarCheckboxesDistance,
-            minVectorLengthForSimilarity,
-            minYLengthForSimilarity
-            );
+    recognize(
+        img,
+        squares,
+        storage,
+        thresh,
+        thresholdLevelToAllocateCheckedCheckboxes,
+        debug,
+        wndname,
+        &results,
+        &totalQuestions,
+        minCheckboxArea,
+        &questionToOuterRectWidthRatio,
+        &checkboxesAreaWidthToQuestionWidthRatio,
+        similarCheckboxesDistance,
+        minVectorLengthForSimilarity,
+        minYLengthForSimilarity
+    );
     outputResults(filename, &results, totalQuestions, outputResultsAs);
 
 /*
