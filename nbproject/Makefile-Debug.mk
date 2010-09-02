@@ -35,8 +35,8 @@ OBJECTFILES= \
 	${OBJECTDIR}/main.o \
 	${OBJECTDIR}/result_output.o \
 	${OBJECTDIR}/helpers.o \
-	${OBJECTDIR}/constants.o \
-	${OBJECTDIR}/not_used_code.o
+	${OBJECTDIR}/not_used_code.o \
+	${OBJECTDIR}/constants.o
 
 # C Compiler Flags
 CFLAGS=-std=c99 -ggdb `pkg-config opencv --cflags --libs` 
@@ -82,15 +82,15 @@ ${OBJECTDIR}/helpers.o: nbproject/Makefile-${CND_CONF}.mk helpers.c
 	${RM} $@.d
 	$(COMPILE.c) -g -MMD -MP -MF $@.d -o ${OBJECTDIR}/helpers.o helpers.c
 
-${OBJECTDIR}/constants.o: nbproject/Makefile-${CND_CONF}.mk constants.c 
-	${MKDIR} -p ${OBJECTDIR}
-	${RM} $@.d
-	$(COMPILE.c) -g -MMD -MP -MF $@.d -o ${OBJECTDIR}/constants.o constants.c
-
 ${OBJECTDIR}/not_used_code.o: nbproject/Makefile-${CND_CONF}.mk not_used_code.c 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
 	$(COMPILE.c) -g -MMD -MP -MF $@.d -o ${OBJECTDIR}/not_used_code.o not_used_code.c
+
+${OBJECTDIR}/constants.o: nbproject/Makefile-${CND_CONF}.mk constants.c 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} $@.d
+	$(COMPILE.c) -g -MMD -MP -MF $@.d -o ${OBJECTDIR}/constants.o constants.c
 
 # Subprojects
 .build-subprojects:

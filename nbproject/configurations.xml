@@ -10,24 +10,45 @@
     <logicalFolder name="ResourceFiles"
                    displayName="Resource Files"
                    projectFiles="true">
-      <itemPath>config.yml</itemPath>
-      <itemPath>tests_for_recognize.jpg</itemPath>
-      <itemPath>tests_for_recognize_2_rotated.jpg</itemPath>
-      <itemPath>tests_for_recognize_2_rotated2.jpg</itemPath>
-      <itemPath>tests_for_recognize_2_rotated3.jpg</itemPath>
-      <itemPath>tests_for_recognize_cropped.jpg</itemPath>
-      <itemPath>tests_for_recognize_origin_2.jpg</itemPath>
-      <itemPath>tests_for_recognize_rotated.jpg</itemPath>
-      <itemPath>tests_for_recognize_rotated2.jpg</itemPath>
-      <itemPath>tests_for_recognize_square_checkboxes_origin.jpg</itemPath>
-      <itemPath>tests_for_recognize_square_checkboxes_origin1.jpg</itemPath>
-      <itemPath>tests_for_recognize_square_checkboxes_origin2.jpg</itemPath>
-      <itemPath>tests_for_recognize_square_checkboxes_origin3.jpg</itemPath>
-      <itemPath>tests_for_recognize_square_checkboxes_origin3_rotated1.jpg</itemPath>
-      <itemPath>tests_for_recognize_square_checkboxes_origin3_rotated2.jpg</itemPath>
-      <itemPath>tests_for_recognize_square_checkboxes_origin3_rotated3.jpg</itemPath>
-      <itemPath>tests_for_recognize_square_checkboxes_origin_rotated1.jpg</itemPath>
-      <itemPath>tests_for_recognize_square_checkboxes_origin_rotated2.jpg</itemPath>
+      <logicalFolder name="scans" displayName="scans" projectFiles="true">
+        <itemPath>images/scans/Скан.jpg</itemPath>
+        <itemPath>images/scans/Скан2.jpg</itemPath>
+        <itemPath>images/scans/скан.jpg</itemPath>
+        <itemPath>images/scans/скан2.jpg</itemPath>
+        <itemPath>images/scans/скан3.jpg</itemPath>
+        <itemPath>images/scans/скан4.jpg</itemPath>
+        <itemPath>images/scans/скан5.jpg</itemPath>
+        <itemPath>images/scans/скан6.jpg</itemPath>
+      </logicalFolder>
+      <itemPath>images/5 1 3 1 3 0 0 1 3 2 3.png</itemPath>
+      <itemPath>images/qr164fb67147ece252e60285ce2e84b0e4.png</itemPath>
+      <itemPath>images/tests_for_recognize.jpg</itemPath>
+      <itemPath>images/tests_for_recognize_2_rotated.jpg</itemPath>
+      <itemPath>images/tests_for_recognize_2_rotated2.jpg</itemPath>
+      <itemPath>images/tests_for_recognize_2_rotated3.jpg</itemPath>
+      <itemPath>images/tests_for_recognize_cropped.jpg</itemPath>
+      <itemPath>images/tests_for_recognize_origin_2.jpg</itemPath>
+      <itemPath>images/tests_for_recognize_rotated.jpg</itemPath>
+      <itemPath>images/tests_for_recognize_rotated2.jpg</itemPath>
+      <itemPath>images/tests_for_recognize_square_checkboxes_origin.jpg</itemPath>
+      <itemPath>images/tests_for_recognize_square_checkboxes_origin1.jpg</itemPath>
+      <itemPath>images/tests_for_recognize_square_checkboxes_origin2.jpg</itemPath>
+      <itemPath>images/tests_for_recognize_square_checkboxes_origin3.jpg</itemPath>
+      <itemPath>images/tests_for_recognize_square_checkboxes_origin3_rotated1.jpg</itemPath>
+      <itemPath>images/tests_for_recognize_square_checkboxes_origin3_rotated2.jpg</itemPath>
+      <itemPath>images/tests_for_recognize_square_checkboxes_origin3_rotated3.jpg</itemPath>
+      <itemPath>images/tests_for_recognize_square_checkboxes_origin4.jpg</itemPath>
+      <itemPath>images/tests_for_recognize_square_checkboxes_origin4_rotated1.jpg</itemPath>
+      <itemPath>images/tests_for_recognize_square_checkboxes_origin5.jpg</itemPath>
+      <itemPath>images/tests_for_recognize_square_checkboxes_origin5_min.jpg</itemPath>
+      <itemPath>images/tests_for_recognize_square_checkboxes_origin5_min_rotated1.jpg</itemPath>
+      <itemPath>images/tests_for_recognize_square_checkboxes_origin_rotated1.jpg</itemPath>
+      <itemPath>images/tests_for_recognize_square_checkboxes_origin_rotated2.jpg</itemPath>
+      <itemPath>images/tests_for_recognize_square_checkboxes_qr_origin.jpg</itemPath>
+      <itemPath>images/tests_for_recognize_square_checkboxes_qr_origin2.jpg</itemPath>
+      <itemPath>images/tests_for_recognize_square_checkboxes_qr_origin2_rotated1.jpg</itemPath>
+      <itemPath>images/tests_for_recognize_square_checkboxes_qr_origin_rotated.jpg</itemPath>
+      <itemPath>images/tests_for_recognize_square_checkboxes_qr_rotated1.jpg</itemPath>
     </logicalFolder>
     <logicalFolder name="SourceFiles"
                    displayName="Source Files"
@@ -45,6 +66,9 @@
       <itemPath>Makefile</itemPath>
     </logicalFolder>
   </logicalFolder>
+  <sourceRootList>
+    <Elem>images/scans</Elem>
+  </sourceRootList>
   <projectmakefile>Makefile</projectmakefile>
   <confs>
     <conf name="Debug" type="1">

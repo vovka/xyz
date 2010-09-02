@@ -164,7 +164,8 @@ window!
     squares = findSquares4( img, storage, 0, minSquaresArea, thresh ); // find squares again after crop
     squares = filterImageBorderSquare( filterSimilarSquares(squares, similarSquaresDistance, storage), storage );
 
-    int* results;
+    int* totalOptions;  //  [3, 3, 4, -2, ...]
+    int** selectedOptions;  //  [[1, 2], [3, 7], [8], ...]
     int totalQuestions;
 
     //IplImage* qr = getSubimage(img, cvRect(440, 0, 110, 110));
@@ -178,7 +179,8 @@ window!
         thresholdLevelToAllocateCheckedCheckboxes,
         debug,
         wndname,
-        &results,
+        &totalOptions,
+        &selectedOptions,
         &totalQuestions,
         minCheckboxArea,
         &questionToOuterRectWidthRatio,
@@ -187,7 +189,7 @@ window!
         minVectorLengthForSimilarity,
         minYLengthForSimilarity
     );
-    outputResults(filename, &results, totalQuestions, outputResultsAs);
+    outputResults(filename, &totalOptions, &selectedOptions, totalQuestions, outputResultsAs);
 
 /*
 window!

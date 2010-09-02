@@ -1,14 +1,5 @@
 #include "helpers.h"
 
-#define concat(arg1,arg2) arg1 ## arg2
-
-/*
-const int THRESHOLD_LEVEL_TO_ALLOCATE_CHECKED_CHECKBOX = 100;//162;
-//const int THRESHOLD_LEVEL_TO_ALLOCATE_ALL_CHECKBOXES = 300;//231;
-const int MIN_CHECKBOX_AREA = 100;
-const int SIMILAR_CHECKBOXES_DISTANCE = 10;
-*/
-
 // the function draws all the squares in the image
 void drawSquares( IplImage** iplimgCanvas, CvSeq* squares, char* chpWndname)
 {
@@ -469,15 +460,16 @@ IplImage* avoidThreshold(IplImage* iplimgSrc, int iThresholdLevel)
 {
     IplImage* iplimgResult = cvCreateImage(cvSize(iplimgSrc->width, iplimgSrc->height), 8, 1);
 
-    CvSize szSrc = cvSize( iplimgSrc->width , iplimgSrc->height );
     IplImage* iplimgTimg = cvCloneImage( iplimgSrc ); // make a copy of input image
+    
+    CvSize szSrc = cvSize( iplimgSrc->width , iplimgSrc->height );
     cvSetImageROI( iplimgTimg, cvRect( 0, 0, szSrc.width, szSrc.height ));
     IplImage* iplimgPyr = cvCreateImage( cvSize(szSrc.width/2, szSrc.height/2), 8, 3 );
-    cvPyrDown( iplimgTimg, iplimgPyr, 7 );
-    cvPyrUp( iplimgPyr, iplimgTimg, 7 );
+    cvPyrDown( iplimgTimg, iplimgPyr, CV_GAUSSIAN_5x5 );
+    cvPyrUp( iplimgPyr, iplimgTimg, CV_GAUSSIAN_5x5 );
     IplImage* iplimgTgray = cvCreateImage( szSrc, 8, 1 );
     cvSetImageCOI( iplimgTimg, 1 );
-    cvCopy( iplimgTimg, iplimgTgray, 0 );
+    cvCopy( iplimgTimg, iplimgTgray, 1 );
     cvThreshold( iplimgTgray, iplimgResult, iThresholdLevel, 255, CV_THRESH_BINARY );
     return iplimgResult;
 }
@@ -590,80 +582,151 @@ int findCheckboxSimilarToChoiceSign(CvSeq* seqpCheckboxes, CvPoint* arrpntpPoint
     return iSimilar;
 }
 
-int getCheckedPosition(CvSeq* seqpCheckboxes, CvSeq* seqCheckedFigure, int minVectorLengthForSimilarity, int minYLengthForSimilarity)
+void convertRectangleCvSeqToPoints(CvSeq* seqpCheckboxes, int i, CvPoint** poipCheckbox)
 {
-    int iResult = seqpCheckboxes->total / 4 + 1;
-    CvPoint* pntpSomePointOfCheckedFigure = (CvPoint*)cvGetSeqElem(seqCheckedFigure, 0);
+    for (int j = 0; j < 4; j++)
+    {
+        poipCheckbox[j] = (CvPoint*)cvGetSeqElem(seqpCheckboxes, i + j);
+    }
+}
 
-/*
-        CvPoint* sign[seqCheckedFigure->total];
-        for(int i = 0; i < seqCheckedFigure->total; i++)
-        {
-            sign[i] = (CvPoint*)cvGetSeqElem(seqCheckedFigure, i);
-        }
-*/
+int isSignInsideCheckbox(IplImage* iplimgpCheckbox, CvMemStorage* mempStorage, int iThresholdLevelToAllocateCheckedCheckboxes)
+{
+    IplImage* iplimgBackup = copyImage(iplimgpCheckbox);
+    iplimgpCheckbox = avoidThreshold(iplimgpCheckbox, iThresholdLevelToAllocateCheckedCheckboxes);
+    //cvThreshold( iplimgpCheckbox, iplimgpCheckbox, iThresholdLevelToAllocateCheckedCheckboxes, 255, CV_THRESH_BINARY );
 
-    CvPoint* arrpntpPointsOfCheckboxes[seqpCheckboxes->total / 4];
+    cvShowImage("test", iplimgpCheckbox);
+    cvWaitKey(0);
+
+    CvSeq* sign = getCheckedSign(iplimgpCheckbox, mempStorage);
+    if (sign->total == 0)
+        return 1;
+    return 0;
+}
+
+void getCheckedPositions(   /*CvSeq* seqpCheckboxes,
+                            CvSeq* seqCheckedFigure,
+                            int minVectorLengthForSimilarity,
+                            int minYLengthForSimilarity,
+                            int** ippSelectedOptions
+                             */
+                            IplImage* iplimgpSrc, 
+                            CvSeq* seqpCheckboxes,
+                            int** ippSelectedOptions,
+                            CvMemStorage* mempStorage,
+                            int iThresholdLevelToAllocateCheckedCheckboxes
+)
+{
+    *ippSelectedOptions = (int*)malloc(seqpCheckboxes->total / 4 * sizeof(int));
+    int cursor = 0;
     for (int i = 0; i < seqpCheckboxes->total; i += 4)
     {
-        arrpntpPointsOfCheckboxes[i / 4] = (CvPoint*)cvGetSeqElem(seqpCheckboxes, i);
-    }
-    // Order by y axis
-    CvPoint pntBuf;
-    for (int i = seqpCheckboxes->total / 4 - 1; i > 0; i--)
-        for (int j = 0; j < i; j++)
+        CvPoint* poipCheckbox[4];
+        convertRectangleCvSeqToPoints(seqpCheckboxes, i, poipCheckbox);
+        normalizeRectanglePoints(poipCheckbox);
+        IplImage* iplimgpCheckbox = getSubimage(
+            iplimgpSrc,
+            cvRect( poipCheckbox[0]->x,
+                    poipCheckbox[0]->y,
+                    poipCheckbox[1]->x - poipCheckbox[0]->x,
+                    poipCheckbox[2]->y - poipCheckbox[1]->y
+            )
+        );
+        if (isSignInsideCheckbox(iplimgpCheckbox, mempStorage, iThresholdLevelToAllocateCheckedCheckboxes))
         {
-            if (arrpntpPointsOfCheckboxes[j]->y > arrpntpPointsOfCheckboxes[j + 1]->y)
-            {
-                pntBuf = *(arrpntpPointsOfCheckboxes[j]);
-                *(arrpntpPointsOfCheckboxes[j]) = *(arrpntpPointsOfCheckboxes[j + 1]);
-                *(arrpntpPointsOfCheckboxes[j + 1]) = pntBuf;
-            }
+            *(*ippSelectedOptions + cursor++) = i + 1;
         }
+    }
+/*
+    int i = 0;
+    int length = 0;
+    CvSeq* tmp = seqCheckedFigure;
+    while ( tmp )
+    {
+        length++;
+        tmp = tmp->h_next;
+    }
+    *(ippSelectedOptions) = (int*)malloc(length * sizeof(int)); // 
+    int iarrResult[length];
+    while (seqCheckedFigure)
+    {
+        iarrResult[i] = seqpCheckboxes->total / 4 + 1;
+        CvPoint* pntpSomePointOfCheckedFigure = (CvPoint*)cvGetSeqElem(seqCheckedFigure, 0);
 
-    //Similarity
-    int iSimilar = findCheckboxSimilarToChoiceSign(seqpCheckboxes, arrpntpPointsOfCheckboxes, pntpSomePointOfCheckedFigure, minVectorLengthForSimilarity);
-
-    if (iSimilar > 0)
-        iResult = iSimilar;
-    else
-        for (int i = 0; i < seqpCheckboxes->total / 4 - 1; i++)
-        {
-            CvPoint* pntpSomePointOfCheckbox = arrpntpPointsOfCheckboxes[i];
-            CvPoint* pntpSomePointOfNextCheckbox = arrpntpPointsOfCheckboxes[i + 1];
-
-            if ( abs(pntpSomePointOfCheckbox->y - pntpSomePointOfCheckedFigure->y) < minYLengthForSimilarity )
+    /*
+            CvPoint* sign[seqCheckedFigure->total];
+            for(int i = 0; i < seqCheckedFigure->total; i++)
             {
-                iResult = i + 1;
-                break;
+                sign[i] = (CvPoint*)cvGetSeqElem(seqCheckedFigure, i);
             }
-            else
+    *---
+
+        CvPoint* arrpntpPointsOfCheckboxes[seqpCheckboxes->total / 4];
+        for (int i = 0; i < seqpCheckboxes->total; i += 4)
+        {
+            arrpntpPointsOfCheckboxes[i / 4] = (CvPoint*)cvGetSeqElem(seqpCheckboxes, i);
+        }
+        // Order by y axis
+        CvPoint pntBuf;
+        for (int i = seqpCheckboxes->total / 4 - 1; i > 0; i--)
+            for (int j = 0; j < i; j++)
             {
-                if (0 == i && pntpSomePointOfCheckedFigure->y < pntpSomePointOfCheckbox->y)
+                if (arrpntpPointsOfCheckboxes[j]->y > arrpntpPointsOfCheckboxes[j + 1]->y)
                 {
-                    iResult = 1;
+                    pntBuf = *(arrpntpPointsOfCheckboxes[j]);
+                    *(arrpntpPointsOfCheckboxes[j]) = *(arrpntpPointsOfCheckboxes[j + 1]);
+                    *(arrpntpPointsOfCheckboxes[j + 1]) = pntBuf;
+                }
+            }
+
+        //Similarity
+        int iSimilar = findCheckboxSimilarToChoiceSign(seqpCheckboxes, arrpntpPointsOfCheckboxes, pntpSomePointOfCheckedFigure, minVectorLengthForSimilarity);
+
+        if (iSimilar > 0)
+            iarrResult[i] = iSimilar;
+        else
+            for (int i = 0; i < seqpCheckboxes->total / 4 - 1; i++)
+            {
+                CvPoint* pntpSomePointOfCheckbox = arrpntpPointsOfCheckboxes[i];
+                CvPoint* pntpSomePointOfNextCheckbox = arrpntpPointsOfCheckboxes[i + 1];
+
+                if ( abs(pntpSomePointOfCheckbox->y - pntpSomePointOfCheckedFigure->y) < minYLengthForSimilarity )
+                {
+                    iarrResult[i] = i + 1;
                     break;
                 }
                 else
                 {
-                    if (pntpSomePointOfCheckedFigure->y > pntpSomePointOfCheckbox->y && pntpSomePointOfCheckedFigure->y < pntpSomePointOfNextCheckbox->y)
+                    if (0 == i && pntpSomePointOfCheckedFigure->y < pntpSomePointOfCheckbox->y)
                     {
-                        iResult = i + 2;
+                        iarrResult[i] = 1;
                         break;
                     }
                     else
                     {
-                        if (i == seqpCheckboxes->total / 4 - 1)
+                        if (pntpSomePointOfCheckedFigure->y > pntpSomePointOfCheckbox->y && pntpSomePointOfCheckedFigure->y < pntpSomePointOfNextCheckbox->y)
                         {
-                            iResult = seqpCheckboxes->total / 4 + 1;
+                            iarrResult[i] = i + 2;
                             break;
+                        }
+                        else
+                        {
+                            if (i == seqpCheckboxes->total / 4 - 1)
+                            {
+                                iarrResult[i] = seqpCheckboxes->total / 4 + 1;
+                                break;
+                            }
                         }
                     }
                 }
             }
-        }
+        seqCheckedFigure = seqCheckedFigure->h_next;
+        i++;
+    }
 
-    return iResult;
+    return iarrResult;
+*/
 }
 
 int getTotalConsideringSimilarityOfSequences(CvSeq* seqpCheckboxes, CvSeq* seqCheckedFigure, int minVectorLengthForSimilarity)
@@ -707,6 +770,7 @@ void getQuestionResults(    IplImage* iplimgSrc,
                             int bDebug,
                             char* chpWndname,
                             int* ipResultOut,
+                            int** ippSelectedOptions,
                             int minCheckboxArea,
                             int similarCheckboxesDistance,
                             int minVectorLengthForSimilarity,
@@ -766,20 +830,21 @@ window!
         if (seqCheckedFigure && seqCheckedFigure->total > 0)
         {
             int iTotal = getTotalConsideringSimilarityOfSequences(seqpCheckboxes, seqCheckedFigure, minVectorLengthForSimilarity);
-            *(ipResultOut + 1) = iTotal;
-            int checkedPosition = getCheckedPosition(seqpCheckboxes, seqCheckedFigure, minVectorLengthForSimilarity, minYLengthForSimilarity);
-            *(ipResultOut + 0) = checkedPosition;
+            *(ipResultOut) = iTotal;
+            //int* checkedPositions = getCheckedPositions(seqpCheckboxes, seqCheckedFigure, minVectorLengthForSimilarity, minYLengthForSimilarity);
+            //*(ippSelectedOptions) = checkedPositions;
+            getCheckedPositions(iplimgSrc, seqpCheckboxes, &(*ippSelectedOptions), cvmempStorage, iThresholdLevelToAllocateCheckedCheckboxes);
         }
         else
         {
-            *(ipResultOut + 0) = NO_ANSWER; // none
-            *(ipResultOut + 1) = NO_ANSWER;
+            *(ipResultOut) = NO_ANSWER; // none
+            *(ippSelectedOptions) = NO_ANSWER;
         }
     }
     else
     {
-        *(ipResultOut + 0) = TEXT_ANSWER;
-        *(ipResultOut + 1) = TEXT_ANSWER; //text question
+        *(ipResultOut) = TEXT_ANSWER;
+        *(ippSelectedOptions) = TEXT_ANSWER; //text question
     }
 }
 
@@ -801,7 +866,8 @@ void recognize( IplImage* iplimgpTarget,
                 int iThreshChecked,
                 int bDebug,
                 char* chpWndname,
-                int** ippResults,
+                int** ippTotalOptions,
+                int*** ipppSelectedOptions,
                 int* ipTotalQuestions,
                 int minCheckboxArea,
                 double* questionToOuterRectWidthRatio,
@@ -809,13 +875,14 @@ void recognize( IplImage* iplimgpTarget,
                 int similarCheckboxesDistance,
                 int minVectorLengthForSimilarity,
                 int minYLengthForSimilarity
-)
+            )
 {
     //loadConfig();
     
     *ipTotalQuestions = seqpQuestionRectangles->total / 4;
     
-    *ippResults = (int*)malloc(2 * seqpQuestionRectangles->total / 4 * sizeof(int));
+    *ippTotalOptions = (int*)malloc(seqpQuestionRectangles->total / 4 * sizeof(int));
+    *ipppSelectedOptions = (int**)malloc(seqpQuestionRectangles->total / 4 * sizeof(int*));
     int iMainBorderWidth = iplimgpTarget->width;
     IplImage* iplimgpQuestionAnswers;
     IplImage* iplimgpQuestion;
@@ -871,7 +938,8 @@ window!
                 iThreshChecked,
                 bDebug,
                 chpWndname,
-                *ippResults + 2 * i / 4,
+                *ippTotalOptions + i / 4,
+                *ipppSelectedOptions + i / 4,
                 minCheckboxArea,
                 similarCheckboxesDistance,
                 minVectorLengthForSimilarity,
