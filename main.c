@@ -56,7 +56,7 @@ float rotationAngle( /*CvSeq* outerRectangle*/ /*CvPoint* topLeft, CvPoint* bott
 int main(int argc, char** argv)
 {
     const char* filename;
-    const char* outputResultsAs = "human";
+    const char* outputResultsAs = "machine";
     int showDialog = 0;
     int debug = 0;
 /*
@@ -122,7 +122,7 @@ int main(int argc, char** argv)
     }
     img = cvCloneImage( img0 );
 
-    CvSeq* squares = findSquares4( img, storage, 0, minSquaresArea, thresh );
+    CvSeq* squares = findSquares4( img, storage, 0, minSquaresArea, 0, thresh );
     squares = filterImageBorderSquare( filterSimilarSquares(squares, similarSquaresDistance, storage), storage );
 /*
 window!
@@ -137,7 +137,7 @@ window!
 
     float ang = rotationAngle( outerRectangle );
     rotateImage( &img, &ang );
-    squares = findSquares4( img, storage, 0, minSquaresArea, thresh ); // find squares again after rotation
+    squares = findSquares4( img, storage, 0, minSquaresArea, 0, thresh ); // find squares again after rotation
     squares =  filterSimilarSquares(squares, similarSquaresDistance, storage);
     squares =  filterImageBorderSquare(squares, storage);
 /*
@@ -161,7 +161,7 @@ window!
         c = cvWaitKey(0);
     }
 
-    squares = findSquares4( img, storage, 0, minSquaresArea, thresh ); // find squares again after crop
+    squares = findSquares4( img, storage, 0, minSquaresArea, 0, thresh ); // find squares again after crop
     squares = filterImageBorderSquare( filterSimilarSquares(squares, similarSquaresDistance, storage), storage );
 
     int* totalOptions;  //  [3, 3, 4, -2, ...]

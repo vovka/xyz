@@ -10,8 +10,10 @@ int isNoAnswer(int* vals)
     return NO_ANSWER == *(vals + 1);
 }
 
-void jsonOutputResults(const char* filename, int** results, int totalQuestions)
+void jsonOutputResults(const char* filename, int** totalOptions, int*** selectedOptions, int totalQuestions)
 {
+    printf("Pending...\n");
+/*
     char* answers;
     for (int i = totalQuestions - 1; i >= 0; i--)
     {
@@ -55,10 +57,13 @@ void jsonOutputResults(const char* filename, int** results, int totalQuestions)
     resultAsJSON = strcat(resultAsJSON, answers);
     resultAsJSON = strcat(resultAsJSON, "] } ");
     printf(resultAsJSON);
+*/
 }
 
-void humanOutputResults(char* filename, int** results, int totalQuestions)
+void humanOutputResults(char* filename, int** totalOptions, int*** selectedOptions, int totalQuestions)
 {
+    printf("Pending...\n");
+/*
     printf("'%s' file results:\n", filename);
     for (int i = totalQuestions - 1; i >= 0; i--)
     {
@@ -81,24 +86,56 @@ void humanOutputResults(char* filename, int** results, int totalQuestions)
         printf("\n");
     }
     printf("\n");
+*/
 }
 
-void defaultOutputResults(char* filename, int** results, int totalQuestions)
+void defaultOutputResults(char* filename, int** totalOptions, int*** selectedOptions, int totalQuestions)
 {
     printf("%s:\n", filename);
+/*
     for (int i = totalQuestions - 1; i >= 0; i--)
     {
         printf("%d / %d\n", *(*results + 2 * i + 0), *(*results + 2 * i + 1));
     }
+*/
+    for (int i = 0; i < totalQuestions; i++)
+    {
+        printf("Question %d answers: ", i);
+        for (int j = 0; j < *(*totalOptions + i); j++)
+        {
+            if ( 1 == *(*(*selectedOptions + i) + j) )
+            {
+                printf("%d ", j + 1);
+            }
+        }
+        printf("\n");
+    }
     printf("\n");
 }
 
-void machineOutputResults(char* filename, int** results, int totalQuestions)
+void machineOutputResults(char* filename, int** totalOptions, int*** selectedOptions, int totalQuestions)
 {
+/*
     for (int i = totalQuestions - 1; i >= 0; i--)
     {
         printf("%d %d ", *(*results + 2 * i + 0), *(*results + 2 * i + 1));
     }
+*/
+    printf("%d ", totalQuestions);   // The first number - total questions amount
+    
+    for (int i = 0; i < totalQuestions; i++)
+    {
+        printf("%d ", *(*totalOptions + i) );   // Then next <totalQuestions> numbers - optins amount in each question
+    }
+
+    for (int i = 0; i < totalQuestions; i++)
+    {
+        for (int j = 0; j < *(*totalOptions + i); j++)
+        {
+            printf("%d ", *(*(*selectedOptions + i) + j));    // The next numbers - results for each option in each question - 0 or 1
+        }
+    }
+
     printf("\n");
 }
 
@@ -118,22 +155,23 @@ int translateFormat(const char* format)
     return DEFAULT;
 }
 
-void outputResults(const char* filename, int** results, int totalQuestions, const char* format)
+//void outputResults(const char* filename, int** results, int totalQuestions, const char* format)
+void outputResults(const char* filename, int** totalOptions, int*** selectedOptions, int totalQuestions, const char* format)
 {
     int f = translateFormat(format);
     switch (f)
     {
         case 1:
-            jsonOutputResults(filename, results, totalQuestions);
+            jsonOutputResults(filename, totalOptions, selectedOptions, totalQuestions);
             break;
         case 0:
-            defaultOutputResults(filename, results, totalQuestions);
+            defaultOutputResults(filename, totalOptions, selectedOptions, totalQuestions);
             break;
         case 3:
-            machineOutputResults(filename, results, totalQuestions);
+            machineOutputResults(filename, totalOptions, selectedOptions, totalQuestions);
             break;
         default:    //HUMAN
-            humanOutputResults(filename, results, totalQuestions);
+            humanOutputResults(filename, totalOptions, selectedOptions, totalQuestions);
     }
 }
 

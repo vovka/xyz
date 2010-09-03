@@ -12,7 +12,7 @@
         <configurationname>GizmoSimple</configurationname>
       </gizmo_options>
       <runprofile version="6">
-        <args>/home/vovka/development/cpp/RecognizerWrapper/images/untitled.bmp --debug --min-squares-area 50000 --threshold-level-to-allocate-checked-checkboxes 100  --threshold 50 --min-checkbox-area 50 --question-to-outer-rect-width-ratio 1.0486008836524301 --checkboxes-area-width-to-question-width-ratio 0.1 --similar-checkboxes-distance 10 --similar-squares-distance 20 --min-vector-length-for-similarity 20 --min-y-length-for-similarity 15</args>
+        <args>/home/vovka/development/cpp/RecognizerWrapper/images/untitled.bmp --debug --min-squares-area 50000 --threshold-level-to-allocate-checked-checkboxes 100  --threshold 50 --min-checkbox-area 500 --question-to-outer-rect-width-ratio 1.0486008836524301 --checkboxes-area-width-to-question-width-ratio 0.1 --similar-checkboxes-distance 8 --similar-squares-distance 20 --min-vector-length-for-similarity 20 --min-y-length-for-similarity 15</args>
         <rundir></rundir>
         <buildfirst>true</buildfirst>
         <console-type>0</console-type>
