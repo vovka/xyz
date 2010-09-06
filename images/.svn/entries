@@ -1,7 +1,7 @@
 10
 
 dir
-145
+158
 http://repos.nixsolutions.com/it_metcis_site/desktop/trunk/c/images
 http://repos.nixsolutions.com/it_metcis_site
 
@@ -60,40 +60,6 @@ has-props
 
 123265
 
-tests_for_recognize_2_rotated2.jpg
-file
-
-
-
-
-2010-08-06T08:20:04.000000Z
-3aca9046c25f9ca874659113db1c0166
-2010-09-01T14:01:31.060119Z
-145
-vladimir
-has-props
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-99606
-
 tests_for_recognize_square_checkboxes_origin.jpg
 file
 
@@ -127,6 +93,40 @@ has-props
 
 
 88601
+
+tests_for_recognize_2_rotated2.jpg
+file
+
+
+
+
+2010-08-06T08:20:04.000000Z
+3aca9046c25f9ca874659113db1c0166
+2010-09-01T14:01:31.060119Z
+145
+vladimir
+has-props
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+99606
 
 tests_for_recognize_2_rotated3.jpg
 file
@@ -196,40 +196,6 @@ has-props
 
 115353
 
-tests_for_recognize_square_checkboxes_origin_rotated1.jpg
-file
-
-
-
-
-2010-08-06T08:20:04.000000Z
-cd26dd95a4d6bc8fbb266c43cbbce547
-2010-09-01T14:01:31.060119Z
-145
-vladimir
-has-props
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-96350
-
 tests_for_recognize_origin_2.jpg
 file
 
@@ -263,6 +229,40 @@ has-props
 
 
 65309
+
+tests_for_recognize_square_checkboxes_origin_rotated1.jpg
+file
+
+
+
+
+2010-08-06T08:20:04.000000Z
+cd26dd95a4d6bc8fbb266c43cbbce547
+2010-09-01T14:01:31.060119Z
+145
+vladimir
+has-props
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+96350
 
 tests_for_recognize_square_checkboxes_origin_rotated2.jpg
 file

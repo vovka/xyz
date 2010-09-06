@@ -586,26 +586,23 @@ int findCheckboxSimilarToChoiceSign(CvSeq* seqpCheckboxes, CvPoint* arrpntpPoint
 void convertRectangleCvSeqToPoints(CvSeq* seqpCheckboxes, int index, CvPoint** poipCheckbox)
 {
     // Ordering from last to first:
-    CvPoint* orderedCheckboxesPoints[seqpCheckboxes->total / 4];
-    for (int i = 0; i < seqpCheckboxes->total; i += 4)
+    CvPoint* orderedCheckboxesPoints[seqpCheckboxes->total];
+    for (int i = 0; i < seqpCheckboxes->total; i++)
     {
-        for (int j = 0; j < 4; j++)
-        {
-            orderedCheckboxesPoints[i + j] = (CvPoint*)cvGetSeqElem(seqpCheckboxes, i + j);
-        }
+        orderedCheckboxesPoints[i] = (CvPoint*)cvGetSeqElem(seqpCheckboxes, i);
     }
     CvPoint* buf;
-    for (int i = 0; i < seqpCheckboxes->total / 4 - 1; i++)
+    for (int i = seqpCheckboxes->total - 4; i > 0; i -= 4)
     {
-        for (int j = i; j < seqpCheckboxes->total / 4 - 1; j++)
+        for (int j = 0; j < i; j += 4)
         {
-            if (orderedCheckboxesPoints[j]->y > orderedCheckboxesPoints[j + 1]->y)
+            if (orderedCheckboxesPoints[j]->y > orderedCheckboxesPoints[j + 4]->y)
             {
                 for (int k = 0; k < 4; k++)
                 {
                     buf = orderedCheckboxesPoints[j + k];
-                    orderedCheckboxesPoints[j + k] = orderedCheckboxesPoints[j + 1 + k];
-                    orderedCheckboxesPoints[j + k] = buf;
+                    orderedCheckboxesPoints[j + k] = orderedCheckboxesPoints[j + 4 + k];
+                    orderedCheckboxesPoints[j + 4 + k] = buf;
                 }
             }
         }
